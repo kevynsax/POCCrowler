@@ -1,0 +1,29 @@
+{
+  "manifest_version": 2,
+
+  "name": "Axa Seguros - Crowler Susep",
+  "description": "Get statistcs from SUSEP",
+  "version": "1.0",
+
+  "browser_action": {
+    "default_icon": "icon.png",
+    "default_popup": "popup.html"
+  },
+
+  "content_scripts": [
+      {
+          "matches": ["<all_urls>"],
+          "js": ["js/vendor.js", "js/contentGetStatistics.js", "js/contentGetTableData.js"]
+      }
+  ],
+
+  "background": {
+    "scripts": ["js/vendor.js", "js/background.js"]
+  },
+
+  "permissions": [
+    "storage",
+    "<all_urls>",
+    "activeTab"
+  ]
+}
