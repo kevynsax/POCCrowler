@@ -10,7 +10,7 @@ const storage = chrome.storage.local;
 const urlSusep = "http://www2.susep.gov.br/menuestatistica/SES/premiosesinistros.aspx?id=54";
 const urlLocal = "https://www.grapecity.com/en/login/"
 let tabId: number = 0;
-
+let count: number = 0;
 chrome.runtime.onMessage.addListener((msg: Mensagem, info, sendResponse) => {
     const lstHandlers: {type: msgType, handler: (msg: Mensagem, sendResponse) => void}[] = [
         { type: msgType.startProcess, handler: startProcess },
@@ -26,13 +26,13 @@ chrome.runtime.onMessage.addListener((msg: Mensagem, info, sendResponse) => {
     return true;
 })
 
+const updateCounter = (n = null) => {
+    count = n || count-1;
+    chrome.browserAction.setBadgeText({text: count.toString()});
+}
+
 const startProcess = (msg: Mensagem) => {
     const periodoFim = msg.payload as Number;
-    
-//   chrome.browserAction.setBadgeText({text: count.toString()});
-//   $('#countUp').click(()=>{
-//     chrome.browserAction.setBadgeText({text: (++count).toString()});
-//   });
 
     //todo: Mapear todos
     const lst: {nome: string, idRamos: number[]}[] = [
@@ -40,6 +40,8 @@ const startProcess = (msg: Mensagem) => {
         { nome: "Financial Lines", idRamos: [310, 378] },
         { nome: "PRCB", idRamos: [748, 749] }
     ];
+
+    updateCounter(lst.length * 2);
 
     //todo pegar periodo inicial do ano atual
     storage.remove(store);
@@ -86,15 +88,19 @@ const getNext = (msg, sendResponse) =>
 
         const nextActualYear = results.find(x => !x.dadosEmpresaAtual.length);
         if(!!nextActualYear){
+            updateCounter();
             sendResponse(nextActualYear)
             return;
         }
 
         const nextLastYear = results.find(x => !x.dadosEmpresaAnoPassado.length);
         if(!!nextLastYear){
+            updateCounter();
             sendResponse(getLastYear(nextLastYear));
             return;
         }
+
+        updateCounter();
 
         sendResponse(null);
         openUrl(urlLocal);
