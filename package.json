@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "watch": "webpack --config webpack/webpack.dev.js --watch",
-    "build": "webpack --config webpack/webpack.prod.js"
+    "build": "webpack --config webpack/webpack.prod.js",
+    "start": "webpack --config webpack/webpack.dev.js --watch"
   },
   "author": "",
   "license": "MIT",
@@ -14,6 +15,9 @@
     "url": "https://github.com/chibat/chrome-extension-typescript-starter.git"
   },
   "dependencies": {
+    "@grapecity/spread-excelio": "^12.0.10",
+    "@grapecity/spread-sheets": "^12.0.10",
+    "file-saver": "^2.0.1",
     "jquery": "~3.3.1",
     "moment": "~2.22.2"
   },

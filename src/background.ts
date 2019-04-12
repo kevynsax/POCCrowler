@@ -7,47 +7,68 @@ const queryInfo = {
 
 const store = "SUSEP";
 const storage = chrome.storage.local;
-const messager = chrome.runtime.sendMessage;
 const urlSusep = "http://www2.susep.gov.br/menuestatistica/SES/premiosesinistros.aspx?id=54";
+const urlLocal = "https://www.grapecity.com/en/login/"
 let tabId: number = 0;
 
-chrome.runtime.onMessage.addListener((msg: Mensagem) => {
-    const lstHandlers: {type: msgType, handler: (msg: Mensagem) => void}[] = [
+chrome.runtime.onMessage.addListener((msg: Mensagem, info, sendResponse) => {
+    const lstHandlers: {type: msgType, handler: (msg: Mensagem, sendResponse) => void}[] = [
         { type: msgType.startProcess, handler: startProcess },
-        { type: msgType.finishedGetStatistics, handler: getTableData },
-        { type: msgType.finishedGetTableData, handler: handleInsert },
+        { type: msgType.insertData, handler: handleInsert },
+        { type: msgType.getNext, handler: getNext },
+        { type: msgType.getCrowlerIsActive, handler: getIsActive },
+        { type: msgType.getDataToExport, handler: getDataToExport }
     ]
     const { handler } = lstHandlers.find(x => x.type === msg.type) || { handler: null };
     if(!handler) return;
 
-    handler(msg);
+    handler(msg, sendResponse);
+    return true;
 })
 
 const startProcess = (msg: Mensagem) => {
+    const periodoFim = msg.payload as Number;
+    
+//   chrome.browserAction.setBadgeText({text: count.toString()});
+//   $('#countUp').click(()=>{
+//     chrome.browserAction.setBadgeText({text: (++count).toString()});
+//   });
+
+    //todo: Mapear todos
+    const lst: {nome: string, idRamos: number[]}[] = [
+        { nome: "Aviation", idRamos: [1528, 1535, 1537, 1597] },
+        { nome: "Financial Lines", idRamos: [310, 378] },
+        { nome: "PRCB", idRamos: [748, 749] }
+    ];
+
+    //todo pegar periodo inicial do ano atual
     storage.remove(store);
-    storage.set({[store]: [{
-        nome: "PRCB",
-        idRamos: [748, 749],
+    storage.set({[store]: lst.map(x => ({
+        nome: x.nome,
+        idRamos: x.idRamos,
         periodoInicial: 201901,
-        periodoFinal: 201902,
+        periodoFinal: periodoFim,
         dadosEmpresaAnoPassado: [],
         dadosEmpresaAtual: []
-    } as Mercado]});
+    } as Mercado))});
 
     chrome.tabs.query(queryInfo, tabs => {
         tabId = tabs[0].id;
-        handleNext();
+        openUrl();
+    });
+}
+
+const getIsActive = (msg: Mensagem, sendResponse: Function) =>
+    storage.get(store, response => {
+        const storeData = response[store];
+        sendResponse(!!storeData)
     })
-}
 
-const getStatistics = (mkt: Mercado) => {
-    const callBack = () => messager({ type: msgType.getStatistics, payload: mkt } as Mensagem);
 
-    chrome.tabs.update(tabId, {url: urlSusep}, tab => executeWhenFinishesLoad(callBack))
-}
+const openUrl = (url = urlSusep) => chrome.tabs.update(tabId, {url});
 
-const getLastYear = (mkt: Mercado) =>
-    getStatistics({
+const getLastYear = (mkt: Mercado): Mercado =>
+    ({
         nome: mkt.nome,
         idRamos: mkt.idRamos,
         periodoInicial: mkt.periodoInicial - 100,
@@ -55,27 +76,33 @@ const getLastYear = (mkt: Mercado) =>
     } as Mercado);
 
 
-const handleNext = () => 
+const getNext = (msg, sendResponse) => 
     storage.get(store, response => {
         const results = response[store] as Mercado[];
+        if(!results){
+            sendResponse(null);
+            return;
+        }
+
         const nextActualYear = results.find(x => !x.dadosEmpresaAtual.length);
         if(!!nextActualYear){
-            getStatistics(nextActualYear);
+            sendResponse(nextActualYear)
             return;
         }
 
         const nextLastYear = results.find(x => !x.dadosEmpresaAnoPassado.length);
         if(!!nextLastYear){
-            getLastYear(nextLastYear);
+            sendResponse(getLastYear(nextLastYear));
             return;
         }
 
-        storage.get(store, console.log)
+        sendResponse(null);
+        openUrl(urlLocal);
+        return;
     })
 
-
 const handleInsert = (msg: Mensagem) =>
-    insertData(msg, handleNext)
+    insertData(msg, () => openUrl())
 
 const insertData = (msg: Mensagem, callBack: () => void) =>
     storage.get(store, response => {
@@ -97,17 +124,16 @@ const insertData = (msg: Mensagem, callBack: () => void) =>
 const equalsMarket = (src: Mercado, to: Mercado): boolean =>
     src.idRamos.join(",") === to.idRamos.join(",");
 
-const getTableData = (msg: Mensagem) => 
-    messager({ type: msgType.getTableData, payload: null} as Mensagem)
 
-const executeWhenFinishesLoad = (callback: Function) => {
-    const listenner = (idTab, info) => {
-        console.log(info);
-        if (info.status !== 'complete' || tabId !== idTab) 
+const getDataToExport = (msg, sendResponse) => 
+    chrome.storage.local.get(store, response => {
+        const lst = response[store] as Mercado[];
+        const hasToDo = !!lst.find(x => !x.dadosEmpresaAnoPassado.length || !x.dadosEmpresaAtual.length);
+
+        if(hasToDo){
+            sendResponse(null);
             return;
+        }
 
-        chrome.tabs.onUpdated.removeListener(listenner);
-        callback();
-    }
-    chrome.tabs.onUpdated.addListener(listenner);
-}
+        sendResponse(lst);
+    })

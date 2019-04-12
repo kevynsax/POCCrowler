@@ -1,14 +1,14 @@
 export enum msgType{
     startProcess,
-    getStatistics,
-    finishedGetStatistics,
-    getTableData,
-    finishedGetTableData
+    insertData,
+    getNext,
+    getCrowlerIsActive,
+    getDataToExport
 }
 
 export interface Mensagem{
     type: msgType,
-    payload: PayloadTableData | Mercado | null
+    payload: PayloadTableData | Mercado | Number | null
 }
 
 export interface PayloadTableData{

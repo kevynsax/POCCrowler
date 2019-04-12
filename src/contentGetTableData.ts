@@ -2,22 +2,25 @@
 import * as $ from 'jquery';
 import { EstatisticaEmpresa, Mercado, Mensagem, msgType } from "./types";
 
-chrome.runtime.onMessage.addListener((msg: Mensagem) => {
-    var jqry = document.createElement('script');
-    jqry.src = "https://code.jquery.com/jquery-3.3.1.min.js";
-    document.getElementsByTagName('head')[0].appendChild(jqry);
+// var jqry = document.createElement('script');
+// jqry.src = "https://code.jquery.com/jquery-3.3.1.min.js";
+// document.getElementsByTagName('head')[0].appendChild(jqry);
 
-    if(msg.type !== msgType.getTableData) return;
+chrome.runtime.sendMessage({
+    type: msgType.getCrowlerIsActive
+} as Mensagem, (response) =>{
+    if(!response)
+        return;
 
     const market = getMetadata();
     const tableData = getTable();
-
+    
     const newMsg: Mensagem = {
-        type: msgType.finishedGetTableData, 
+        type: msgType.insertData, 
         payload: {metadata: market, tableData}};
-
+    
     chrome.runtime.sendMessage(newMsg);
-});
+})
 
 const getMetadata = (): Mercado => ({
     idRamos: $("#ctl00_ContentPlaceHolder1_lblRamos")[0].innerText.split(", ").map(x => parse(x)),

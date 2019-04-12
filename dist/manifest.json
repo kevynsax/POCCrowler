@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
 
-  "name": "Axa Seguros - Crowler Susep",
+  "name": "Crowler Susep - Axa Seguros",
   "description": "Get statistcs from SUSEP",
   "version": "1.0",
 
@@ -10,10 +10,24 @@
     "default_popup": "popup.html"
   },
 
+  "icons": {"256": "icon.png"},   
+
   "content_scripts": [
+    {
+      "matches": ["http://www2.susep.gov.br/menuestatistica/SES/premiosesinistros.aspx?id=54"],
+      "run_at": "document_end",
+      "js": ["js/vendor.js", "js/contentGetStatistics.js"]
+    },
+    {
+      "matches": ["https://www.grapecity.com/en/login/"],
+      "run_at": "document_end",
+      "js": ["js/vendor.js", "js/contentGenerateSheet.js"]
+    },
+      
       {
-          "matches": ["<all_urls>"],
-          "js": ["js/vendor.js", "js/contentGetStatistics.js", "js/contentGetTableData.js"]
+        "matches": ["http://www2.susep.gov.br/menuestatistica/SES/resp_premiosesinistros.aspx"],
+        "run_at": "document_end",
+        "js": ["js/vendor.js", "js/contentGetTableData.js"]
       }
   ],
 

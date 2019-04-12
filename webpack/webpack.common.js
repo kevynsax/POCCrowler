@@ -7,7 +7,8 @@ module.exports = {
         options: path.join(__dirname, '../src/options.ts'),
         background: path.join(__dirname, '../src/background.ts'),
         contentGetStatistics: path.join(__dirname, '../src/contentGetStatistics.ts'),
-        contentGetTableData: path.join(__dirname, '../src/contentGetTableData.ts')
+        contentGetTableData: path.join(__dirname, '../src/contentGetTableData.ts'),
+        contentGenerateSheet: path.join(__dirname, '../src/contentGenerateSheet.ts')
     },
     output: {
         path: path.join(__dirname, '../dist/js'),

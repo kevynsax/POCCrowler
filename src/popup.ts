@@ -2,23 +2,17 @@ import * as moment from 'moment';
 import * as $ from 'jquery';
 import { Mensagem, msgType } from "./types";
 
-let count = 0;
 $(function() {
-  const queryInfo = {
-    active: true,
-    currentWindow: true
-  };
+  const data = new Date();
+  $("#periodoFim").val(`${data.getFullYear()}${padLeft(data.getMonth(), 2, '0')}`)
 
-  chrome.tabs.query(queryInfo, function(tabs) {
-    $('#url').text(tabs[0].url);
-    $('#time').text(moment().format('YYYY-MM-DD HH:mm:ss'));
+  $('#generate').click(()=>{
+    const periodoFim = parseInt($("#periodoFim").val().toString(), 10);
+    chrome.runtime.sendMessage({ type: msgType.startProcess, payload: periodoFim } as Mensagem);
+    window.close();
   });
-
-  chrome.browserAction.setBadgeText({text: count.toString()});
-  $('#countUp').click(()=>{
-    chrome.browserAction.setBadgeText({text: (++count).toString()});
-  });
-
-  $('#generate').click(()=>
-    chrome.runtime.sendMessage({ type: msgType.startProcess, payload: null} as Mensagem));
 });
+
+const padLeft = function (src, n ,str){
+  return Array(n - String(src).length+1).join(str||'0')+src;
+}
