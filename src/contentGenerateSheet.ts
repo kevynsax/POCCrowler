@@ -11,29 +11,39 @@ chrome.runtime.sendMessage({
     const lst = response as Mercado[];
 
     console.log(lst);
-    generateSpreadSheet()
+    generateSpreadSheet(lst)
 })
 
-const generateSpreadSheet = () => {
+const generateSpreadSheet = (lst: Mercado[]) => {
     
     let element = "<div style='height:700px ; width :100%;' id='sheet'></div>";
     $("body").html(element);
 
-    teste();
+    teste(lst);
 }
 
-const teste = () => {
+const teste = (lst: Mercado[]) => {
     
     $.support.cors = true;
     GC.Spread.Sheets.LicenseKey = "E628286641333291#B0wN4cKRTN7BlZxBjNYF7Y9E5QYBVZMJlSqh7Zod7RZZTdJRmc8FUcpR4V9NTRFRVNpFzQ8EDOTNmRUBneqdjdpp6YBhjTMxmMiFWNytkQVl6LL3ka0F5Y9QWUZ5ENv5USJdTTrVEcMhFV7l4MqN5ZvQzb4lVMPFnNCNWWSRUO4V7V9UHRUJWUlR4cRxGVqdDOvVnblp4RIFnS7QGa4UzKvRkZEZ5NHFUU4g6Rqp7NKhUTst6Svpkb5AXT5kERuNEUYtET9JXexl6bTtWWu9GaKBzdKFlTR9UY6sUUMJHWSB7LoZHRvJVbVdTerE4TutiVDhDc8JUMa9kYwgmbidzbmlDThtUYwonQMxEeiVGRiojITJCLiUEMFFTO7YjI0ICSiwCMwMzM5gDMyETM0IicfJye#4Xfd5nIJZUOCJiOiMkIsIiMx8idgMlSgQWYlJHcTJiOi8kI1tlOiQmcQJCLiQTM8QDNwAiMyATM8EDMyIiOiQncDJCLi86Yu46bj9Se4l6YlBXYydmLqwSbvNmL9RXajVGchJ7ZuoCLwpmLvNmL9RXajVGchJ7ZuoCLt36YuUmbvRnbl96bw56bj9iKiojIz5GRiwiIuMmbJBSe4l6QlBXYydkI0ISYONkIsUWdyRnOiwmdFJCLiETOyMzMzEDN6YDOygjM6IiOiQWSiwSflNHbhZmOiI7ckJye0ICbuFkI1pjIEJCLi4TPRtCeF56N4FFVCNlNRZ5YmN5LSZkZ6lUU0RUQvdka5x6aq3SRntiMTh5NLNDRwlWcJJ7Y7InevIjS6gmbQdmcsFXdyVXagVIZ";
     const workbook = new GC.Spread.Sheets.Workbook(document.getElementById("sheet"));
 
-    workbook.suspendPaint();
-    workbook.suspendCalcService(false);
+    //workbook.suspendPaint();
+    //workbook.suspendCalcService(false);
+
+    const mercado1 = lst[0];
 
     var sheet = workbook.getActiveSheet();
+    sheet.name(mercado1.nome);
+    sheet.setValue(0, 0, `YTD ${mercado1.periodoFinal.toString().substr(0,4)}/${mercado1.periodoFinal.toString().substr(4,2)}`)
+
+    const styleRed = new GC.Spread.Sheets.Style();
+    styleRed.backColor = "red";
+    styleRed.foreColor = "white";
+    sheet.setStyle(0,0,styleRed);
+    return;
     sheet.addRows(11, 1);
-    sheet.copyTo(10, 1, 11, 1, 1, 29, GC.Spread.Sheets.CopyToOptions.style);
+    sheet.copyTo(10, 1, 11, 1, 1, 19, GC.Spread.Sheets.CopyToOptions.style);
 
     sheet.setValue(11, 1, "Revenue 8");
 
