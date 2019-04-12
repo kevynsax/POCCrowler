@@ -17,7 +17,8 @@ chrome.runtime.onMessage.addListener((msg: Mensagem, info, sendResponse) => {
         { type: msgType.insertData, handler: handleInsert },
         { type: msgType.getNext, handler: getNext },
         { type: msgType.getCrowlerIsActive, handler: getIsActive },
-        { type: msgType.getDataToExport, handler: getDataToExport }
+        { type: msgType.getDataToExport, handler: getDataToExport },
+        { type: msgType.cleanStorage, handler: cleanStorage}
     ]
     const { handler } = lstHandlers.find(x => x.type === msg.type) || { handler: null };
     if(!handler) return;

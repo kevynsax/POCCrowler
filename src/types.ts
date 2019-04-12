@@ -3,7 +3,8 @@ export enum msgType{
     insertData,
     getNext,
     getCrowlerIsActive,
-    getDataToExport
+    getDataToExport,
+    cleanStorage
 }
 
 export interface Mensagem{
