@@ -43,9 +43,9 @@ const startProcess = (msg: Mensagem) => {
     ];
 
     updateCounter(lst.length * 2);
-
+    cleanStorage();
+    
     //todo pegar periodo inicial do ano atual
-    storage.remove(store);
     storage.set({[store]: lst.map(x => ({
         nome: x.nome,
         idRamos: x.idRamos,
@@ -144,3 +144,5 @@ const getDataToExport = (msg, sendResponse) =>
 
         sendResponse(lst);
     })
+
+const cleanStorage = () => storage.remove(store);
