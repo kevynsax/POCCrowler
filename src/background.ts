@@ -1,11 +1,12 @@
 
-import { Mensagem, msgType, Mercado, PayloadTableData, GrupoEmpresarial } from "./types";
+import { Mensagem, msgType, Mercado, PayloadTableData, GrupoEmpresarial, PayloadConfigs } from "./types";
 const queryInfo = {
     active: true,
     currentWindow: true
 };
 
-const store = "SUSEP";
+const store = "SusepData";
+const storeConfig = "ConfigAxaCrowler";
 const storage = chrome.storage.local;
 const urlSusep = "http://www2.susep.gov.br/menuestatistica/SES/premiosesinistros.aspx?id=54";
 const urlLocal = "https://www.grapecity.com/en/login/"
@@ -18,8 +19,11 @@ chrome.runtime.onMessage.addListener((msg: Mensagem, info, sendResponse) => {
         { type: msgType.getNext, handler: getNext },
         { type: msgType.getCrowlerIsActive, handler: getIsActive },
         { type: msgType.getDataToExport, handler: getDataToExport },
-        { type: msgType.cleanStorage, handler: cleanStorage},
-        { type: msgType.getAggregatedCompanies, handler: getAggregatedCompanies}
+        { type: msgType.cleanStorage, handler: cleanStorage },
+        { type: msgType.getAggregatedCompanies, handler: getAggregatedCompanies },
+        { type: msgType.getConfigs, handler: handlerGetConfigs },
+        { type: msgType.saveConfigs, handler: handleUpdateConfigs },
+        { type: msgType.resetConfigs, handler: resetConfigs },
     ]
     const { handler } = lstHandlers.find(x => x.type === msg.type) || { handler: null };
     if(!handler) return;
@@ -33,42 +37,28 @@ const updateCounter = (n = null) => {
     chrome.browserAction.setBadgeText({text: count.toString()});
 }
 
-const startProcess = (msg: Mensagem) => {
-    const periodoFim = msg.payload as Number;
+const startProcess = (msg: Mensagem) => 
+    getConfigs(configs => {
+        const periodoFim = msg.payload as Number;
 
-    const lst: {nome: string, idRamos: number[]}[] = [
-        { nome: "Aviation", idRamos: [1528, 1535, 1537, 1597] },
-        { nome: "Financial Lines", idRamos: [310, 378] },
-        { nome: "Cargo", idRamos: [621, 622, 632, 638, 652, 654, 655, 656, 658] },
-        { nome: "Casualty", idRamos: [351] },
-        { nome: "Construction", idRamos: [167] },
-        { nome: "Environmental", idRamos: [313] },
-        { nome: "Port", idRamos: [1417] },
-        { nome: "Property", idRamos: [196, 141, 118] },
-        { nome: "PRCB", idRamos: [748, 749] },
-        { nome: "Total sem DPVAT", idRamos: [1528, 1535, 1537, 1597, 310, 378, 621, 622, 632, 638, 652, 654, 655, 656, 658, 351, 167, 313, 1417, 196, 141, 118, 748, 749] },
-        { nome: "DPVAT", idRamos: [588] },
-        { nome: "Total com DPVAT", idRamos: [1528, 1535, 1537, 1597, 310, 378, 621, 622, 632, 638, 652, 654, 655, 656, 658, 351, 167, 313, 1417, 196, 141, 118, 748, 749, 588] },
-    ];
+        updateCounter(configs.markets.length * 2);
+        cleanStorage();
+        
+        //todo pegar periodo inicial do ano atual
+        storage.set({[store]: configs.markets.map(x => ({
+            nome: x.nome,
+            idRamos: x.idRamos,
+            periodoInicial: 201901,
+            periodoFinal: periodoFim,
+            dadosEmpresaAnoPassado: [],
+            dadosEmpresaAtual: []
+        } as Mercado))});
 
-    updateCounter(lst.length * 2);
-    cleanStorage();
-    
-    //todo pegar periodo inicial do ano atual
-    storage.set({[store]: lst.map(x => ({
-        nome: x.nome,
-        idRamos: x.idRamos,
-        periodoInicial: 201901,
-        periodoFinal: periodoFim,
-        dadosEmpresaAnoPassado: [],
-        dadosEmpresaAtual: []
-    } as Mercado))});
-
-    chrome.tabs.query(queryInfo, tabs => {
-        tabId = tabs[0].id;
-        openUrl();
+        chrome.tabs.query(queryInfo, tabs => {
+            tabId = tabs[0].id;
+            openUrl();
+        });
     });
-}
 
 const getIsActive = (msg: Mensagem, sendResponse: Function) =>
     storage.get(store, response => {
@@ -137,9 +127,10 @@ const insertData = (msg: Mensagem, callBack: () => void) =>
         storage.set({[store]: newValues}, callBack)
     });
 
-const equalsMarket = (src: Mercado, to: Mercado): boolean =>
-    src.idRamos.join(",") === to.idRamos.join(",");
-
+const equalsMarket = (src: Mercado, to: Mercado): boolean => {
+    const createHash = (lst: number[]): string => lst.sort((a, b) => a - b).join(",");
+    return createHash(src.idRamos) === createHash(to.idRamos);
+}
 
 const getDataToExport = (msg, sendResponse) => 
     chrome.storage.local.get(store, response => {
@@ -156,8 +147,53 @@ const getDataToExport = (msg, sendResponse) =>
 
 const cleanStorage = () => storage.remove(store);
 
-    //todo completar lista de grupos empresariais
+const updateConfigs = (cfg: PayloadConfigs, callBack) => storage.set({[storeConfig]: cfg}, callBack);
+const handleUpdateConfigs = (msg, sendresponse) => updateConfigs(msg.payload as PayloadConfigs, sendresponse)
+
 const getAggregatedCompanies = (msg, sendReponse) =>
-    sendReponse([
-        {nome: "MAPFRE BANCO DO BRASIL", idEmpresas: [6238, 6785]},
-    ] as GrupoEmpresarial[])
+    getConfigs(configs => sendReponse(configs.aggregatedCompanies))
+
+const handlerGetConfigs = (msg, sendResponse) => getConfigs(sendResponse);
+
+const getConfigs = (callback: (obj: PayloadConfigs) => void): void => 
+    storage.get(storeConfig, response => {
+        var configs = response[storeConfig] as PayloadConfigs;
+        if(!configs){
+            setupConfigs(() => getConfigs(callback));
+            return;
+        }
+
+        callback(configs);
+    });
+
+const resetConfigs = (msg, sendResponse) => setupConfigs(sendResponse);    
+//todo completar lista de grupos empresariais
+const setupConfigs = callback => {
+    const idDpvat = 588;
+    const mkts = [
+        { nome: "Aviation", idRamos: [1528, 1535, 1537, 1597] },
+        { nome: "Financial Lines", idRamos: [310, 378] },
+        { nome: "Cargo", idRamos: [621, 622, 632, 638, 652, 654, 655, 656, 658] },
+        { nome: "Casualty", idRamos: [351] },
+        { nome: "Construction", idRamos: [167] },
+        { nome: "Environmental", idRamos: [313] },
+        { nome: "Port", idRamos: [1417] },
+        { nome: "Property", idRamos: [196, 141, 118] },
+        { nome: "PRCB", idRamos: [748, 749] },
+    ];
+
+    const allIds = mkts.map(x => x.idRamos).reduce((all, item) => [...all, ...item], []);
+
+    updateConfigs({
+        markets: [
+            ...mkts,
+            { nome: "Total sem DPVAT", idRamos: allIds },
+            { nome: "DPVAT", idRamos: [idDpvat] },
+            { nome: "Total com DPVAT", idRamos: [...allIds, idDpvat] },
+        ],
+        aggregatedCompanies: [
+            {nome: "MAPFRE BANCO DO BRASIL", idEmpresas: [6238, 6785]},
+        ]
+    } as PayloadConfigs, callback);
+}
+

@@ -104,6 +104,9 @@ textarea {
     height: 200px;
     border-radius: 3px;
     resize: vertical;
+    transition-property: border-color outline-color border-width;
+    transition-duration: 400ms;
+    transition-timing-function: ease-in;
 }
 
 .configs>.buttonBar {
@@ -113,4 +116,14 @@ textarea {
 
 .hide{
     display: none;
+}
+
+.hasError{
+    border: 1px solid red;
+    outline-color: red;
+}
+
+.hasSuccess{
+    border: 2px solid #218838;
+    outline-color: #218838;
 }
