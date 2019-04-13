@@ -33,8 +33,11 @@ chrome.runtime.onMessage.addListener((msg: Mensagem, info, sendResponse) => {
 })
 
 const updateCounter = (n = null) => {
-    count = n || count-1;
-    chrome.browserAction.setBadgeText({text: count.toString()});
+    count = n || count - 1;
+    if(count === -1)
+        count = null;
+    const labelCount = (count || "").toString();
+    chrome.browserAction.setBadgeText({text: labelCount});
 }
 
 const startProcess = (msg: Mensagem) => 
@@ -133,7 +136,7 @@ const equalsMarket = (src: Mercado, to: Mercado): boolean => {
 }
 
 const getDataToExport = (msg, sendResponse) => 
-    chrome.storage.local.get(store, response => {
+    storage.get(store, response => {
         const lst = response[store] as Mercado[];
         const hasToDo = !!lst.find(x => !x.dadosEmpresaAnoPassado.length || !x.dadosEmpresaAtual.length);
 
@@ -143,7 +146,7 @@ const getDataToExport = (msg, sendResponse) =>
         }
 
         sendResponse(lst);
-    })
+    });
 
 const cleanStorage = () => storage.remove(store);
 
