@@ -1,14 +1,17 @@
 import * as $ from 'jquery';
-import { Mensagem, msgType, PayloadConfigs } from "./types";
+import { Mensagem, msgType, PayloadConfigs, PayloadStartProcess } from "./types";
 
 const messager = chrome.runtime.sendMessage;
 $(function() {
+  const getIntVal = fieldId => parseInt($(`#${fieldId}`).val().toString(), 10)
   const data = new Date();
-  $("#periodoFim").val(`${data.getFullYear()}${padLeft(data.getMonth(), 2, '0')}`)
+  $("#periodoFim").val(`${data.getFullYear()}${padLeft(data.getMonth(), 2, '0')}`);
+  $("#periodoInicial").val(`${data.getFullYear()}01`);
 
   $('#generate').click(()=>{
-    const periodoFim = parseInt($("#periodoFim").val().toString(), 10);
-    chrome.runtime.sendMessage({ type: msgType.startProcess, payload: periodoFim } as Mensagem);
+    const periodoFinal = getIntVal("periodoFim");
+    const periodoInicial = getIntVal("periodoInicial");
+    chrome.runtime.sendMessage({ type: msgType.startProcess, payload: {periodoInicial, periodoFinal} as PayloadStartProcess } as Mensagem);
     window.close();
   });
 

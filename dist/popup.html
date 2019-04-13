@@ -1,48 +1,58 @@
 <!doctype html>
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Getting Started Extension's Popup</title>
-    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
-    <link href="style.css" rel="stylesheet">
-    <script src="js/vendor.js"></script>
-  </head>
-  <body>
-    <div class="form">
-        <div class="title">
-          <img src="icon.png" class="logo" title="Axa seguros" />
-          <h2>AXA Seguros</h2>
-          <img src="settings.svg" class="settings" id="btnSettings" title="Settings" />
-        </div>
-        <div class="fields">
-          <span>Periodo Fim</span>
-          <input type="number" id="periodoFim">
-        </div>
-        <button id="generate">Generate</button>
-    </div>
-    <div class="menuConfig hide">
-      <div class="title">
-        <img src="icon.png" class="logo" title="Axa seguros" />
-        <h2>Configurações</h2>
-        <img src="settings_restore.svg" title="Reestore Backup Settings" class="settings" id="btnReestoreSettings"/>
-      </div>
-      <div class="configs">
-        <div>
-          <span>Ramos</span>
-          <textarea id="markets" placeholder='Insira aqui os ramos, no formato: &#10;[&#10;{"nome": "Aviation", "idRamos": [467, 488, 354, 13]},&#10;{"nome": "DPVAT", "idRamos": [132, 154, 132]}&#10;]'></textarea>
-        </div>
-        <div>
-          <span>Grupos Empresariais</span>
-          <textarea id="aggregatedCompanies" placeholder='Insira aqui os Grupos empresariais, no formato: &#10;[&#10;{"nome": "DPVAT", "idEmpresas": [132, 154, 132]},&#10;{"nome": "HDI", "idEmpresas": [1571, 6572]}&#10;]'></textarea>
-        </div>
-        <div class="buttonBar">
-          <button id="btnBack" class="btnDefault">Back</button>
-          <button id="btnSave">Save</button>          
-        </div>
-      </div>
-    </div>
-    <script src="js/popup.js"></script>
-  </body>
-</html>
 
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Getting Started Extension's Popup</title>
+  <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+  <script src="js/vendor.js"></script>
+</head>
+
+<body>
+  <div class="form">
+    <div class="title">
+      <img src="icon.png" class="logo" title="Axa seguros" />
+      <h2>AXA Seguros</h2>
+      <img src="settings.svg" class="settings" id="btnSettings" title="Settings" />
+    </div>
+    <div class="fields">
+      <div class="periodoInicial">
+        <span>Periodo Inicial</span>
+        <input type="number" id="periodoInicial">
+      </div>
+      <div class="periodoFinal">
+        <span>Periodo Fim</span>
+        <input type="number" id="periodoFim">
+      </div>
+    </div>
+    <button id="generate">Generate</button>
+  </div>
+  <div class="menuConfig hide">
+    <div class="title">
+      <img src="icon.png" class="logo" title="Axa seguros" />
+      <h2>Configurações</h2>
+      <img src="settings_restore.svg" title="Reestore Backup Settings" class="settings" id="btnReestoreSettings" />
+    </div>
+    <div class="configs">
+      <div>
+        <span>Ramos</span>
+        <textarea id="markets"
+          placeholder='Insira aqui os ramos, no formato: &#10;[&#10;{"nome": "Aviation", "idRamos": [467, 488, 354, 13]},&#10;{"nome": "DPVAT", "idRamos": [132, 154, 132]}&#10;]'></textarea>
+      </div>
+      <div>
+        <span>Grupos Empresariais</span>
+        <textarea id="aggregatedCompanies"
+          placeholder='Insira aqui os Grupos empresariais, no formato: &#10;[&#10;{"nome": "DPVAT", "idEmpresas": [132, 154, 132]},&#10;{"nome": "HDI", "idEmpresas": [1571, 6572]}&#10;]'></textarea>
+      </div>
+      <div class="buttonBar">
+        <button id="btnBack" class="btnDefault">Back</button>
+        <button id="btnSave">Save</button>
+      </div>
+    </div>
+  </div>
+  <script src="js/popup.js"></script>
+</body>
+
+</html>

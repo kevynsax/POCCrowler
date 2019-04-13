@@ -13,7 +13,12 @@ export enum msgType{
 
 export interface Mensagem{
     type: msgType;
-    payload: PayloadTableData | PayloadConfigs | Mercado | Number | null;
+    payload: PayloadTableData | PayloadConfigs | Mercado | PayloadStartProcess | Number | null;
+}
+
+export interface PayloadStartProcess{
+    periodoInicial: number,
+    periodoFinal: number
 }
 
 export interface PayloadTableData{

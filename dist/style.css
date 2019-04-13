@@ -18,7 +18,7 @@ button {
     border-radius: 3px;
     cursor: pointer;
     height: fit-content;
-    margin-left: 4px;
+    margin: 8px 0;
     text-transform: uppercase;
 }
 
@@ -75,12 +75,17 @@ h2 {
     margin-bottom: 4px;
 }
 
-.fields {
-    display: flex;
-    flex-direction: column;
+.fields{
+    padding: 16px 0;
 }
 
-.fields input {
+.fields > div{
+    display: flex;
+    flex-direction: column;
+    margin: 8px 0;
+}
+
+input {
     padding: 6px;
     font-size: 1.1rem;
     border-radius: 3px;
@@ -112,6 +117,11 @@ textarea {
 .configs>.buttonBar {
     flex-direction: row;
     justify-content: flex-end;
+    padding: 0;
+}
+
+.configs>.buttonBar button{
+    margin-left: 4px;
 }
 
 .hide{

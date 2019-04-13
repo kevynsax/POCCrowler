@@ -1,5 +1,5 @@
 
-import { Mensagem, msgType, Mercado, PayloadTableData, GrupoEmpresarial, PayloadConfigs } from "./types";
+import { Mensagem, msgType, Mercado, PayloadTableData, GrupoEmpresarial, PayloadConfigs, PayloadStartProcess } from "./types";
 const queryInfo = {
     active: true,
     currentWindow: true
@@ -42,17 +42,16 @@ const updateCounter = (n = null) => {
 
 const startProcess = (msg: Mensagem) => 
     getConfigs(configs => {
-        const periodoFim = msg.payload as Number;
+        const {periodoFinal, periodoInicial} = msg.payload as PayloadStartProcess;
 
         updateCounter(configs.markets.length * 2);
         cleanStorage();
         
-        //todo pegar periodo inicial do ano atual
         storage.set({[store]: configs.markets.map(x => ({
             nome: x.nome,
             idRamos: x.idRamos,
-            periodoInicial: 201901,
-            periodoFinal: periodoFim,
+            periodoInicial: periodoInicial,
+            periodoFinal: periodoFinal,
             dadosEmpresaAnoPassado: [],
             dadosEmpresaAtual: []
         } as Mercado))});
