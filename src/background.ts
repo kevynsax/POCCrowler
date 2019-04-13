@@ -1,5 +1,5 @@
 
-import { Mensagem, msgType, Mercado, PayloadTableData } from "./types";
+import { Mensagem, msgType, Mercado, PayloadTableData, GrupoEmpresarial } from "./types";
 const queryInfo = {
     active: true,
     currentWindow: true
@@ -17,7 +17,8 @@ chrome.runtime.onMessage.addListener((msg: Mensagem, info, sendResponse) => {
         { type: msgType.insertData, handler: handleInsert },
         { type: msgType.getNext, handler: getNext },
         { type: msgType.getCrowlerIsActive, handler: getIsActive },
-        { type: msgType.getDataToExport, handler: getDataToExport }
+        { type: msgType.getDataToExport, handler: getDataToExport },
+        { type: msgType.getAggregatedCompanies, handler: getAggregatedCompanies}
     ]
     const { handler } = lstHandlers.find(x => x.type === msg.type) || { handler: null };
     if(!handler) return;
@@ -34,11 +35,19 @@ const updateCounter = (n = null) => {
 const startProcess = (msg: Mensagem) => {
     const periodoFim = msg.payload as Number;
 
-    //todo: Mapear todos
     const lst: {nome: string, idRamos: number[]}[] = [
         { nome: "Aviation", idRamos: [1528, 1535, 1537, 1597] },
         { nome: "Financial Lines", idRamos: [310, 378] },
-        { nome: "PRCB", idRamos: [748, 749] }
+        { nome: "Cargo", idRamos: [621, 622, 632, 638, 652, 654, 655, 656, 658] },
+        { nome: "Casualty", idRamos: [351] },
+        { nome: "Construction", idRamos: [167] },
+        { nome: "Environmental", idRamos: [313] },
+        { nome: "Port", idRamos: [1417] },
+        { nome: "Property", idRamos: [196, 141, 118] },
+        { nome: "PRCB", idRamos: [748, 749] },
+        { nome: "Total sem DPVAT", idRamos: [1528, 1535, 1537, 1597, 310, 378, 621, 622, 632, 638, 652, 654, 655, 656, 658, 351, 167, 313, 1417, 196, 141, 118, 748, 749] },
+        { nome: "DPVAT", idRamos: [588] },
+        { nome: "Total com DPVAT", idRamos: [1528, 1535, 1537, 1597, 310, 378, 621, 622, 632, 638, 652, 654, 655, 656, 658, 351, 167, 313, 1417, 196, 141, 118, 748, 749, 588] },
     ];
 
     updateCounter(lst.length * 2);
@@ -143,3 +152,9 @@ const getDataToExport = (msg, sendResponse) =>
 
         sendResponse(lst);
     })
+
+    //todo completar lista de grupos empresariais
+const getAggregatedCompanies = (msg, sendReponse) =>
+    sendReponse([
+        {nome: "MAPFRE BANCO DO BRASIL", idEmpresas: [6238, 6785]},
+    ] as GrupoEmpresarial[])

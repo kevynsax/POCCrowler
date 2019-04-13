@@ -3,7 +3,8 @@ export enum msgType{
     insertData,
     getNext,
     getCrowlerIsActive,
-    getDataToExport
+    getDataToExport,
+    getAggregatedCompanies
 }
 
 export interface Mensagem{
@@ -36,4 +37,9 @@ export interface Mercado{
     periodoFinal: number,
     dadosEmpresaAtual: EstatisticaEmpresa[],
     dadosEmpresaAnoPassado: EstatisticaEmpresa[]
+}
+
+export interface GrupoEmpresarial{
+    nome: string,
+    idEmpresas: number[]
 }
