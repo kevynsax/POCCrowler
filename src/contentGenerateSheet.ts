@@ -20,10 +20,8 @@ const generateSpreadSheet = (lst: Mercado[]) => {
     let element = "<div style='height:700px ; width :100%;' id='sheet'></div>";
     $("body").html(element);
 
-    messager({ type: msgType.getAggregatedCompanies } as Mensagem, lstGroups => teste(lst, lstGroups))
-    
+    messager({ type: msgType.getAggregatedCompanies } as Mensagem, lstGroups => teste(lst, lstGroups));    
 }
-
 
 const teste = (lst: Mercado[], lstAggregateCompanies: GrupoEmpresarial[]) => {
     
@@ -76,6 +74,7 @@ const teste = (lst: Mercado[], lstAggregateCompanies: GrupoEmpresarial[]) => {
             if (item.agrupar) 
                 sheet.addSpan(0,0,1,item.agrupar);
             const skip = list.slice(0, i).filter(x => x.agrupar).reduce((agregado, atual) => agregado + atual.agrupar -1, 0);
+
             sheet.setValue(y, skip + i, item.name);
             sheet.setStyle(y, skip + i, item.style || styleBlack);
         })
