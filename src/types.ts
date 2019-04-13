@@ -42,5 +42,6 @@ export interface Mercado{
 
 export interface GrupoEmpresarial{
     nome: string,
-    idEmpresas: number[]
+    idEmpresas: number[],
+    isAxa: boolean
 }

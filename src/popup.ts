@@ -11,8 +11,19 @@ $(function() {
     chrome.runtime.sendMessage({ type: msgType.startProcess, payload: periodoFim } as Mensagem);
     window.close();
   });
+
+  const toggleSettings = () => {
+    $("body").toggleClass("bodyConfig");
+    $(".form").toggleClass("hide");
+    $(".menuConfig").toggleClass("hide");
+  }
+
+  $('#btnSettings').click(toggleSettings);
+  $('#btnBack').click(toggleSettings);
 });
 
 const padLeft = function (src, n ,str){
   return Array(n - String(src).length+1).join(str||'0')+src;
 }
+
+

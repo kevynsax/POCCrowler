@@ -2,89 +2,44 @@
 <html>
   <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Getting Started Extension's Popup</title>
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
-    <style>
-      body {
-        font-family: 'Source Sans Pro', sans-serif;
-        font-size: 100%;
-        width: 300px;
-        height: 200px;
-      }
-
-      button{
-        border: 1px solid #28a745;
-        background: #28a745;
-        color: white;
-        padding: 8px 16px;
-        border-radius: 3px;
-        cursor: pointer;
-        height: fit-content;
-      }
-
-      button:hover{
-        background: #218838;
-        border: 1px solid #1e7e34;
-      }
-
-      img{
-        height: 35px;
-        border-radius: 3px;
-      }
-
-      .title{
-        display: flex;
-      }
-
-      h2{
-        margin: 0;
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-      }
-
-      .form{
-        display: flex;
-        height: 100%;
-        justify-content: space-between;
-        flex-direction: column; 
-        text-align: center;
-        padding: 8px;
-        margin-bottom: 4px;
-      }
-
-      .fields{
-        display: flex;
-        flex-direction: column;
-      }
-
-      .fields span{
-        text-align: left;
-        font-weight: 700;
-        font-size: 0.9rem;
-        font-family: "Segoe UI";
-      }
-
-      .fields input{
-        padding: 6px;
-        font-size: 1.1rem;
-        border-radius: 3px;
-        border: 1px gray solid;
-      }
-    </style>
+    <link href="style.css" rel="stylesheet">
     <script src="js/vendor.js"></script>
   </head>
   <body>
     <div class="form">
         <div class="title">
-          <img src="icon.png" />
+          <img src="icon.png" class="logo" />
           <h2>AXA Seguros</h2>
+          <img src="settings.svg" class="settings" id="btnSettings"/>
         </div>
         <div class="fields">
           <span>Periodo Fim</span>
           <input type="number" id="periodoFim">
         </div>
         <button id="generate">Generate</button>
+    </div>
+    <div class="menuConfig hide">
+      <div class="title">
+        <img src="icon.png" class="logo"/>
+        <h2>Configurações</h2>
+      </div>
+      <div class="configs">
+        <div class="markets">
+          <span>Ramos</span>
+          <textarea placeholder='Insira aqui os ramos, no formato: &#10;[&#10;{nome: "Aviation", idRamos: [467, 488, 354, 13]},&#10;{nome: "DPVAT", idRamos: [132, 154, 132]}&#10;]' id="markets"></textarea>
+        </div>
+        <div class="aggregatedCompanies">
+          <span>Grupos Empresariais</span>
+          <textarea placeholder='Insira aqui os Grupos empresariais, no formato: &#10;[&#10;{nome: "DPVAT", idEmpresas: [132, 154, 132]},&#10;{nome: "HDI", idEmpresas: [1571, 6572]}&#10;]' id="aggregatedMarkets"></textarea>
+        </div>
+        <div class="buttonBar">
+          <button id="btnBack" class="btnDefault">Back</button>
+          <button id="btnSave">Save</button>          
+        </div>
+      </div>
     </div>
     <script src="js/popup.js"></script>
   </body>
