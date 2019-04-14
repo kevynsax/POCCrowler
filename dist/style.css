@@ -101,7 +101,7 @@ span {
 
 textarea {
     width: 484px;
-    height: 175px;
+    height: 150px;
     border-radius: 3px;
     resize: vertical;
     transition-property: border-color outline-color border-width;
@@ -140,4 +140,8 @@ textarea {
 .configs > .inline > span:last-child{
     padding-left: 4px;
     font-weight: 600;
-}   
+}
+
+input[type=text] {
+    font-size: 1.0rem;
+}

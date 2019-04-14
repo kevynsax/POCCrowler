@@ -31,6 +31,7 @@ export interface PayloadConfigs{
     markets: Mercado[];
     aggregatedCompanies: GrupoEmpresarial[];
     generateRawData: boolean;
+    nameExportedFile: string;
 }
 
 export interface EstatisticaEmpresa{

@@ -1,118 +1,194 @@
-import { msgType, Mensagem, Mercado, GrupoEmpresarial, PayloadConfigs, EstatisticaEmpresa } from "./types";
+import { msgType, Mensagem, Mercado, PayloadConfigs, EstatisticaEmpresa } from "./types";
 import * as $ from 'jquery';
-import * as GC from "@grapecity/spread-sheets";
-import '@grapecity/spread-sheets/styles/gc.spread.sheets.css';
+import * as Excel from "exceljs";
 
+const ExcelJS = require("exceljs/dist/es5/exceljs.browser");
 const messager = chrome.runtime.sendMessage;
-messager({
-    type: msgType.getDataToExport
-} as Mensagem, (allData: Mercado[]) => {
+const decimalFormatting = "#,##0.##";
+const intFormatting = "#,##0";
+const skipTextColumns = 2;
+
+const startProccess = (allData: Mercado[]) => {
     if(!allData)
         return;
 
-    messager({ type: msgType.getConfigs } as Mensagem, 
-        (cfgs: PayloadConfigs) => {
-            if(!cfgs.generateRawData)
-                return;
-
-            generateRawSpreadSheet(allData);
-        });
-});
+    const start = (cfgs: PayloadConfigs) => {
+        if(!cfgs.generateRawData)
+            return;
+        prepareHtml();
+        generateRawSpreadSheet(allData, cfgs);
+    };
+    messager({ type: msgType.getConfigs } as Mensagem, start);
+}
+messager({ type: msgType.getDataToExport } as Mensagem, startProccess);
 
 const prepareHtml = () => {
     $("head").html(`<link rel="styleSheet" href="grape.css" />`);
-    const element = "<div style='height:700px ; width :100%;' id='sheet'></div><div class='footer'></div>";
-    $("body").html(element);
+    $("body").html("<div class='footer'></div>");
     $("footer").html("<div class='footer'></div>");   
 }
 
-const generateRawSpreadSheet = (data: Mercado[]) => {
-    prepareHtml();
-    $.support.cors = true;
-    GC.Spread.Sheets.LicenseKey = "E628286641333291#B0wN4cKRTN7BlZxBjNYF7Y9E5QYBVZMJlSqh7Zod7RZZTdJRmc8FUcpR4V9NTRFRVNpFzQ8EDOTNmRUBneqdjdpp6YBhjTMxmMiFWNytkQVl6LL3ka0F5Y9QWUZ5ENv5USJdTTrVEcMhFV7l4MqN5ZvQzb4lVMPFnNCNWWSRUO4V7V9UHRUJWUlR4cRxGVqdDOvVnblp4RIFnS7QGa4UzKvRkZEZ5NHFUU4g6Rqp7NKhUTst6Svpkb5AXT5kERuNEUYtET9JXexl6bTtWWu9GaKBzdKFlTR9UY6sUUMJHWSB7LoZHRvJVbVdTerE4TutiVDhDc8JUMa9kYwgmbidzbmlDThtUYwonQMxEeiVGRiojITJCLiUEMFFTO7YjI0ICSiwCMwMzM5gDMyETM0IicfJye#4Xfd5nIJZUOCJiOiMkIsIiMx8idgMlSgQWYlJHcTJiOi8kI1tlOiQmcQJCLiQTM8QDNwAiMyATM8EDMyIiOiQncDJCLi86Yu46bj9Se4l6YlBXYydmLqwSbvNmL9RXajVGchJ7ZuoCLwpmLvNmL9RXajVGchJ7ZuoCLt36YuUmbvRnbl96bw56bj9iKiojIz5GRiwiIuMmbJBSe4l6QlBXYydkI0ISYONkIsUWdyRnOiwmdFJCLiETOyMzMzEDN6YDOygjM6IiOiQWSiwSflNHbhZmOiI7ckJye0ICbuFkI1pjIEJCLi4TPRtCeF56N4FFVCNlNRZ5YmN5LSZkZ6lUU0RUQvdka5x6aq3SRntiMTh5NLNDRwlWcJJ7Y7InevIjS6gmbQdmcsFXdyVXagVIZ";
+const border = {
+    top: {style:'thin'},
+    left: {style:'thin'},
+    bottom: {style:'thin'},
+    right: {style:'thin'}
+} as Partial<Excel.Borders>;
 
-    const workbook = new GC.Spread.Sheets.Workbook(document.getElementById("sheet"));
-    
-    workbook.suspendPaint();
-    workbook.suspendCalcService(false);
+const sitylingTitle = row => {
+    row.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: { argb: "1C5E55"}
+    };
+
+    row.font = {
+        name: 'Verdana',
+        size: 11,
+        bold: true,
+        color: { argb: "ffffff" }
+    };
+
+    row.border = border;
+}
+
+const alignLeft = cell => cell.alignment = { 
+    vertical: 'top', 
+    horizontal: 'left' 
+}
+
+const alignCenter = cell => cell.alignment = { 
+    vertical: 'top', 
+    horizontal: 'center' 
+}
+
+const generateRawSpreadSheet = (data: Mercado[], cfgs: PayloadConfigs) => {
+    var workbook = new ExcelJS.Workbook();
+    workbook.creator = "Kevyn Pinheiro Klava";
+    workbook.created = new Date();
+    workbook.properties.date1904 = true;
+
+    workbook.views = [
+        {
+          x: 0, y: 0, width: 10000, height: 20000,
+          firstSheet: 0, activeTab: 1, visibility: 'visible'
+        }
+    ];
 
     const metadata = [
         { prop: "dadosEmpresaAtual", stampYear: 0},
         { prop: "dadosEmpresaAnoPassado", stampYear: 1 }
     ];
-    data.forEach((mkt, i) =>
-        metadata.forEach((mt, z) => {
-            const labelSheet = `DB ${mkt.nome} ${(mkt.periodoFinal - (mt.stampYear * 100)).toString().substr(0, 4)}`;
-            const positionSheet = (i * metadata.length) + z;
-            generateSheets(workbook, mkt[mt.prop], labelSheet, positionSheet);
+    data.forEach(mkt =>
+        metadata.forEach(meta => {
+            const labelSheet = `DB ${mkt.nome} ${(mkt.periodoFinal - (meta.stampYear * 100)).toString().substr(0, 4)}`;
+            generateSheets(workbook, mkt[meta.prop], labelSheet);
         }));
+        
+    downloadFile(workbook, cfgs.nameExportedFile);
 }
 
-const generateSheets = (workbook: GC.Spread.Sheets.Workbook, data: EstatisticaEmpresa[], titleSheet: string, position: number) => {
-    let sheet = new GC.Spread.Sheets.Worksheet(titleSheet);
-    workbook.addSheet(position, sheet);
-
-    const styleTitle = new GC.Spread.Sheets.Style();
-    styleTitle.backColor = "red";
-    styleTitle.foreColor = "white";
+const hasDecimalPlaces = (number: number): boolean => !!(number % 1)
+const generateSheets = (workbook: Excel.Workbook, data: EstatisticaEmpresa[], titleSheet: string) => {
+    const sheet = workbook.addWorksheet(titleSheet, {
+        views: [{showGridLines: true}]
+    });
     
-    const styleLineEven = new GC.Spread.Sheets.Style();
-    styleTitle.backColor = "black";
-    styleTitle.foreColor = "white";
-    
-    const styleLineOdd = new GC.Spread.Sheets.Style();
-    styleTitle.backColor = "white";
-    styleTitle.foreColor = "green";
+    generateTitle(sheet);
+    generateSubTitle(sheet, data);
 
-    const alphabet = "abcdefghijklmnopqrsuvwxyz";
-    const title = [[
-        { titulo: `Código SUSEP` },
-        { titulo: `Empresa` },
-        { titulo: `Prêmio Emitido ³` },
-        { titulo: `Prêmio Ganho ¹` },
-        { titulo: `Despesa com Resseguro ³` },
-        { titulo: `Sinistro Ocorrido ³` },
-        { titulo: `Receita com Resseguro ³` },
-        { titulo: `Despesa Comercial` },
-        { titulo: `Sinistralidade ¹` },
-        { titulo: `RVNE ³`, sum: false },
-    ],
-    [  
+    data.forEach((dt, index) => {
+        const row = sheet.addRow(dt);
+        
+        row.border = border;
+        row.font = {
+            name: 'Verdana',
+            size: 11,
+            color: { argb: "333333" }
+        };
+
+        if(!!(index % 1))
+            row.fill = {
+                type: "pattern",
+                pattern: "solid",
+                fgColor: { argb: "E3EAEB"}
+            };
+
+        Array.from({length: skipTextColumns}, (x, i) => alignLeft(row.getCell(i + 1)));
+        Object.keys(dt).slice(skipTextColumns).forEach((prop, i) => {
+            const cell = row.getCell(i + 1 + skipTextColumns);
+            cell.numFmt = hasDecimalPlaces(dt[prop]) ? decimalFormatting : intFormatting;
+        });
+
+    });
+}
+const generateTitle = (sheet: Excel.Worksheet) => {
+    const titles = [
+        { prop: "idSusep", titulo: `Código SUSEP`, width: 17.29 },
+        { prop: "empresa", titulo: `Empresa`, width: 72 },
+        { prop: "premioEmitido", titulo: `Prêmio Emitido ³`, width: 20.57 },
+        { prop: "premioGanho", titulo: `Prêmio Ganho ¹`, width: 19.29  },
+        { prop: "despesaResseguro", titulo: `Despesa com Resseguro ³`, width: 32  },
+        { prop: "sinistroOcorrido", titulo: `Sinistro Ocorrido ³`, width: 22.43  },
+        { prop: "receitaResseguro", titulo: `Receita com Resseguro ³`, width: 30.71  },
+        { prop: "despesaComercial", titulo: `Despesa Comercial`, width: 23.14  },
+        { prop: "sinistralidade", titulo: `Sinistralidade ¹`, width: 18.57  },
+        { prop: "rvne", titulo: `RVNE ³`, width: 14.57 },
+    ];
+
+    sheet.columns = titles.map(title => ({
+        header: title.titulo,
+        key: title.prop,
+        width: title.width,
+        style: {
+            font: {
+                name: 'Verdana',
+                size: 11,
+            }
+        }
+    }));
+    const rowTitle = sheet.getRow(1);
+    alignCenter(rowTitle);
+    sitylingTitle(rowTitle)
+}
+
+const generateSubTitle = (sheet: Excel.Worksheet, data: EstatisticaEmpresa[]) => {
+    const alphabet = "CDEFGHIJKLMNOPQRSUVWXYZ";
+    const totals = [  
         { titulo: ``},
         { titulo: `Totais`},
-        ...Array.from({length: 8}, z => ({titulo: "", sum: true}))
-    ]];
+        ...Array.from({length: sheet.columns.length - skipTextColumns}, z => ({titulo: "", sum: true}))
+    ];
 
-    title.forEach((line, y) => 
-        line.forEach((item, x) => {
-            sheet.setValue(y, x, item.titulo);
-            sheet.setStyle(y, x, styleTitle);
-            if(item.sum)
-                sheet.setFormula(y, x, `=SUM(${alphabet[x]}${title.length+1}:${alphabet[x]}${data.length+title.length})`)
-        }));
+    const totalRows = sheet.addRow([...totals].map(a => a.titulo));
+    alignCenter(totalRows.getCell(2));
+    sitylingTitle(totalRows);
 
-    data.forEach((obj, i) => {
-        const rowNumber: number = i + title.length;
-        const style = !!(i % 2) ? styleLineEven : styleLineOdd;
-        [
-            obj.idSusep, 
-            obj.empresa, 
-            obj.premioEmitido, 
-            obj.premioGanho, 
-            obj.despesaResseguro, 
-            obj.sinistroOcorrido, 
-            obj.receitaResseguro, 
-            obj.despesaComercial, 
-            obj.sinistralidade, 
-            obj.rvne
-        ].forEach((column, x) => {
-            sheet.setValue(rowNumber, x, column);
-            sheet.setStyle(rowNumber, x, style);
-        })
+    totals.slice(skipTextColumns).forEach((x, i) => {
+        const idCol = i + 1 + skipTextColumns;
+        const cell = totalRows.getCell(idCol);
+        const prop = sheet.getColumn(idCol).key;
+
+        const sum = data.reduce((a, b) => a + b[prop], 0)
+        cell.value = {
+            formula: `=SUM(${alphabet[i]}${skipTextColumns + 1}:${alphabet[i]}${data.length + 2})`,
+            result: sum
+        }
+        cell.numFmt = hasDecimalPlaces(sum) ? decimalFormatting : intFormatting;
     })
-
-    workbook.resumeCalcService(false);
-    workbook.resumePaint();
-    //to do uncoment when finishies
-    //messager({type: msgType.cleanStorage} as Mensagem)
 }
+
+const downloadFile = (workbook: Excel.Workbook, fileName: string) =>
+    workbook.xlsx.writeBuffer()
+        .then(res => {
+            const dataFile = new Blob([res], {type: "octet/stream"});
+            const url = window.URL.createObjectURL(dataFile);
+
+            const a = document.createElement("a");
+            a.setAttribute("style", "display: none");
+            a.href = url;
+            a.download = `Database ${fileName}.xlsx`;
+            a.click();
+
+            window.URL.revokeObjectURL(url);
+        });

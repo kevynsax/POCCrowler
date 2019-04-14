@@ -81,7 +81,7 @@ const teste = (lst: Mercado[], lstAggregateCompanies: GrupoEmpresarial[]) => {
         })
     )
 
-    messager({ type: msgType.finishiesExportSpreadSheet } as Mensagem);
+    //messager({ type: msgType.finishiesExportSpreadSheet } as Mensagem);
 
     return;
     sheet.addRows(11, 1);

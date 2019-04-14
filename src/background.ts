@@ -9,12 +9,11 @@ const store = "SusepData";
 const storeConfig = "ConfigAxaCrowler";
 const storage = chrome.storage.local;
 const urlSusep = "http://www2.susep.gov.br/menuestatistica/SES/premiosesinistros.aspx?id=54";
-const urlSpreadSheet = "https://www.grapecity.com/en/generateSpreadSheet";
-//const urlRawSpreadSheet = "https://www.grapecity.com/en/generateRawSpreadSheet";
-const urlRawSpreadSheet = "https://www.grapecity.com/en/login/";
 const urlAxa = "https://www.axa.com.br/";
+
 let tabId: number = 0;
 let count: number = 0;
+
 chrome.runtime.onMessage.addListener((msg: Mensagem, info, sendResponse) => {
     const lstHandlers: {type: msgType, handler: (msg: Mensagem, sendResponse) => void}[] = [
         { type: msgType.startProcess, handler: startProcess },
@@ -28,7 +27,7 @@ chrome.runtime.onMessage.addListener((msg: Mensagem, info, sendResponse) => {
         { type: msgType.getConfigs, handler: handlerGetConfigs },
         { type: msgType.saveConfigs, handler: handleUpdateConfigs },
         { type: msgType.resetConfigs, handler: resetConfigs },
-    ]
+    ];
     const { handler } = lstHandlers.find(x => x.type === msg.type) || { handler: null };
     if(!handler) return;
 
@@ -108,7 +107,6 @@ const getNext = (msg, sendResponse) =>
         updateCounter();
 
         sendResponse(null);
-        openUrl(urlSpreadSheet);
         return;
     })
 
@@ -179,7 +177,7 @@ const handleFinishiesExport = (msg, sendResponse) =>
             return;
         }
 
-        openUrl(urlRawSpreadSheet);
+        openUrl(urlAxa);
     })
 
 const resetConfigs = (msg, sendResponse) => setupConfigs(sendResponse);    
@@ -208,6 +206,7 @@ const setupConfigs = callback => {
             { nome: "Total com DPVAT", idRamos: [...allIds, idDpvat] },
         ],
         aggregatedCompanies: [
+<<<<<<< HEAD
             {nome: "MAPFRE BANCO DO BRASIL", idEmpresas: [6238, 6211, 6785, 6181, 3289]},  // MAPFRE VIDA S.A.
             {nome: "PORTO SEGURO", idEmpresas: [5886, 5355, 3182, 6033]},
             {nome: "ZURICH", idEmpresas: [5495, 5941]}, // ZURICH SANTANDER BRASIL SEGUROS E PREVIDÊNCIA S.A. // ZURICH SANTANDER BRASIL SEGUROS S.A.
@@ -222,6 +221,12 @@ const setupConfigs = callback => {
             {nome: "COMPREV", idEmpresas: [1937, 2879]},
             {nome: "INVESTPREV", idEmpresas: [6921, 6173]},
         ]
+=======
+            {nome: "MAPFRE BANCO DO BRASIL", idEmpresas: [6238, 6785]},
+        ],
+        generateRawData: false,
+        nameExportedFile: "Template comparativo de mercado"
+>>>>>>> 9eb7700fa976eb9380087416eb768cded051490e
     } as PayloadConfigs, callback);
 }
 

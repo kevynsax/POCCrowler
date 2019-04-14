@@ -34,6 +34,9 @@ module.exports = {
             }
         ]
     },
+    node: {
+        fs: 'empty'
+    },
     resolve: {
         extensions: ['.ts', '.tsx', '.js']
     },
