@@ -1,56 +1,31 @@
 import { msgType, Mensagem, Mercado, PayloadConfigs, EstatisticaEmpresa } from "./types";
 import * as $ from 'jquery';
 import * as Excel from "exceljs";
-const ExcelJS = require("exceljs/dist/es5/exceljs.browser");
 
+const ExcelJS = require("exceljs/dist/es5/exceljs.browser");
 const messager = chrome.runtime.sendMessage;
+const decimalFormatting = "#,##0.##";
+const intFormatting = "#,##0";
+const skipTextColumns = 2;
 
 const startProccess = (allData: Mercado[]) => {
     if(!allData)
         return;
 
-    console.log(allData);
-    messager({ type: msgType.getConfigs } as Mensagem, 
-        (cfgs: PayloadConfigs) => {
-            if(!cfgs.generateRawData)
-                return;
-            prepareHtml();
-            generateRawSpreadSheet(allData, cfgs);
-        });
+    const start = (cfgs: PayloadConfigs) => {
+        if(!cfgs.generateRawData)
+            return;
+        prepareHtml();
+        generateRawSpreadSheet(allData, cfgs);
+    };
+    messager({ type: msgType.getConfigs } as Mensagem, start);
 }
-
 messager({ type: msgType.getDataToExport } as Mensagem, startProccess);
 
 const prepareHtml = () => {
     $("head").html(`<link rel="styleSheet" href="grape.css" />`);
     $("body").html("<div class='footer'></div>");
     $("footer").html("<div class='footer'></div>");   
-}
-
-const generateRawSpreadSheet = (data: Mercado[], cfgs: PayloadConfigs) => {
-    var workbook = new ExcelJS.Workbook();
-    workbook.creator = "Kevyn Pinheiro Klava";
-    workbook.created = new Date();
-    workbook.properties.date1904 = true;
-
-    workbook.views = [
-        {
-          x: 0, y: 0, width: 10000, height: 20000,
-          firstSheet: 0, activeTab: 1, visibility: 'visible'
-        }
-    ];
-
-    const metadata = [
-        { prop: "dadosEmpresaAtual", stampYear: 0},
-        { prop: "dadosEmpresaAnoPassado", stampYear: 1 }
-    ];
-    data.forEach(mkt =>
-        metadata.forEach(meta => {
-            const labelSheet = `DB ${mkt.nome} ${(mkt.periodoFinal - (meta.stampYear * 100)).toString().substr(0, 4)}`;
-            generateSheets(workbook, mkt[meta.prop], labelSheet);
-        }));
-        
-    downloadFile(workbook, cfgs.nameExportedFile);
 }
 
 const border = {
@@ -87,6 +62,33 @@ const alignCenter = cell => cell.alignment = {
     horizontal: 'center' 
 }
 
+const generateRawSpreadSheet = (data: Mercado[], cfgs: PayloadConfigs) => {
+    var workbook = new ExcelJS.Workbook();
+    workbook.creator = "Kevyn Pinheiro Klava";
+    workbook.created = new Date();
+    workbook.properties.date1904 = true;
+
+    workbook.views = [
+        {
+          x: 0, y: 0, width: 10000, height: 20000,
+          firstSheet: 0, activeTab: 1, visibility: 'visible'
+        }
+    ];
+
+    const metadata = [
+        { prop: "dadosEmpresaAtual", stampYear: 0},
+        { prop: "dadosEmpresaAnoPassado", stampYear: 1 }
+    ];
+    data.forEach(mkt =>
+        metadata.forEach(meta => {
+            const labelSheet = `DB ${mkt.nome} ${(mkt.periodoFinal - (meta.stampYear * 100)).toString().substr(0, 4)}`;
+            generateSheets(workbook, mkt[meta.prop], labelSheet);
+        }));
+        
+    downloadFile(workbook, cfgs.nameExportedFile);
+}
+
+const hasDecimalPlaces = (number: number): boolean => !!(number % 1)
 const generateSheets = (workbook: Excel.Workbook, data: EstatisticaEmpresa[], titleSheet: string) => {
     const sheet = workbook.addWorksheet(titleSheet, {
         views: [{showGridLines: true}]
@@ -95,8 +97,8 @@ const generateSheets = (workbook: Excel.Workbook, data: EstatisticaEmpresa[], ti
     generateTitle(sheet);
     generateSubTitle(sheet, data);
 
-    data.forEach((data, i) => {
-        const row = sheet.addRow(data);
+    data.forEach((dt, index) => {
+        const row = sheet.addRow(dt);
         
         row.border = border;
         row.font = {
@@ -105,14 +107,19 @@ const generateSheets = (workbook: Excel.Workbook, data: EstatisticaEmpresa[], ti
             color: { argb: "333333" }
         };
 
-        if(!!(i % 1))
+        if(!!(index % 1))
             row.fill = {
                 type: "pattern",
                 pattern: "solid",
                 fgColor: { argb: "E3EAEB"}
             };
 
-        [1,2].forEach(i => alignLeft(row.getCell(i)));
+        Array.from({length: skipTextColumns}, (x, i) => alignLeft(row.getCell(i + 1)));
+        Object.keys(dt).slice(skipTextColumns).forEach((prop, i) => {
+            const cell = row.getCell(i + 1 + skipTextColumns);
+            cell.numFmt = hasDecimalPlaces(dt[prop]) ? decimalFormatting : intFormatting;
+        });
+
     });
 }
 const generateTitle = (sheet: Excel.Worksheet) => {
@@ -150,23 +157,24 @@ const generateSubTitle = (sheet: Excel.Worksheet, data: EstatisticaEmpresa[]) =>
     const totals = [  
         { titulo: ``},
         { titulo: `Totais`},
-        ...Array.from({length: 8}, z => ({titulo: "", sum: true}))
+        ...Array.from({length: sheet.columns.length - skipTextColumns}, z => ({titulo: "", sum: true}))
     ];
-    
+
     const totalRows = sheet.addRow([...totals].map(a => a.titulo));
     alignCenter(totalRows.getCell(2));
     sitylingTitle(totalRows);
 
-    const skip = 2;
-
-    totals.slice(skip).forEach((x, i) => {
-        const idCol = i + 1 + skip;
+    totals.slice(skipTextColumns).forEach((x, i) => {
+        const idCol = i + 1 + skipTextColumns;
         const cell = totalRows.getCell(idCol);
         const prop = sheet.getColumn(idCol).key;
+
+        const sum = data.reduce((a, b) => a + b[prop], 0)
         cell.value = {
-            formula: `=SUM(${alphabet[i]}${skip + 1}:${alphabet[i]}${data.length + 2})`,
-            result: data.reduce((a, b) => a + b[prop], 0)
+            formula: `=SUM(${alphabet[i]}${skipTextColumns + 1}:${alphabet[i]}${data.length + 2})`,
+            result: sum
         }
+        cell.numFmt = hasDecimalPlaces(sum) ? decimalFormatting : intFormatting;
     })
 }
 
