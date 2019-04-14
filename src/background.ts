@@ -208,7 +208,19 @@ const setupConfigs = callback => {
             { nome: "Total com DPVAT", idRamos: [...allIds, idDpvat] },
         ],
         aggregatedCompanies: [
-            {nome: "MAPFRE BANCO DO BRASIL", idEmpresas: [6238, 6785]},
+            {nome: "MAPFRE BANCO DO BRASIL", idEmpresas: [6238, 6211, 6785, 6181, 3289]},  // MAPFRE VIDA S.A.
+            {nome: "PORTO SEGURO", idEmpresas: [5886, 5355, 3182, 6033]},
+            {nome: "ZURICH", idEmpresas: [5495, 5941]}, // ZURICH SANTANDER BRASIL SEGUROS E PREVIDÊNCIA S.A. // ZURICH SANTANDER BRASIL SEGUROS S.A.
+            {nome: "HDI", idEmpresas: [1571, 6572]},
+            {nome: "AXA", idEmpresas: [1431, 2852, 6696]},
+            {nome: "BRADESCO", idEmpresas: [5312, 5533]},
+            {nome: "COFACE", idEmpresas: [6335]}, // COFACE DO BRASIL SEGUROS DE CRÉDITO S/A
+            {nome: "ICATU", idEmpresas: [5142, 5657]},
+            {nome: "SAFRA", idEmpresas: [1627, 9938]},
+            {nome: "ALFA", idEmpresas: [6467, 2895]},
+            {nome: "CAPEMISA", idEmpresas: [4251, 1741]},
+            {nome: "COMPREV", idEmpresas: [1937, 2879]},
+            {nome: "INVESTPREV", idEmpresas: [6921, 6173]},
         ]
     } as PayloadConfigs, callback);
 }
