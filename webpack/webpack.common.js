@@ -8,7 +8,8 @@ module.exports = {
         background: path.join(__dirname, '../src/background.ts'),
         contentGetStatistics: path.join(__dirname, '../src/contentGetStatistics.ts'),
         contentGetTableData: path.join(__dirname, '../src/contentGetTableData.ts'),
-        contentGenerateSheet: path.join(__dirname, '../src/contentGenerateSheet.ts')
+        contentGenerateSheet: path.join(__dirname, '../src/contentGenerateSheet.ts'),
+        contentGenerateRawSheet: path.join(__dirname, '../src/contentGenerateRawSheet.ts'),
     },
     output: {
         path: path.join(__dirname, '../dist/js'),
@@ -22,6 +23,10 @@ module.exports = {
     },
     module: {
         rules: [
+            {
+              test: /\.css$/,
+              use: ['css-loader'],
+            },
             {
                 test: /\.tsx?$/,
                 use: 'ts-loader',

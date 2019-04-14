@@ -9,7 +9,10 @@ const store = "SusepData";
 const storeConfig = "ConfigAxaCrowler";
 const storage = chrome.storage.local;
 const urlSusep = "http://www2.susep.gov.br/menuestatistica/SES/premiosesinistros.aspx?id=54";
-const urlLocal = "https://www.grapecity.com/en/login/"
+const urlSpreadSheet = "https://www.grapecity.com/en/generateSpreadSheet";
+//const urlRawSpreadSheet = "https://www.grapecity.com/en/generateRawSpreadSheet";
+const urlRawSpreadSheet = "https://www.grapecity.com/en/login/";
+const urlAxa = "https://www.axa.com.br/";
 let tabId: number = 0;
 let count: number = 0;
 chrome.runtime.onMessage.addListener((msg: Mensagem, info, sendResponse) => {
@@ -19,8 +22,9 @@ chrome.runtime.onMessage.addListener((msg: Mensagem, info, sendResponse) => {
         { type: msgType.getNext, handler: getNext },
         { type: msgType.getCrowlerIsActive, handler: getIsActive },
         { type: msgType.getDataToExport, handler: getDataToExport },
-        { type: msgType.cleanStorage, handler: cleanStorage },
         { type: msgType.getAggregatedCompanies, handler: getAggregatedCompanies },
+        { type: msgType.finishiesExportSpreadSheet, handler: handleFinishiesExport },
+        { type: msgType.cleanStorage, handler: cleanStorageAndGoToAxaSite },
         { type: msgType.getConfigs, handler: handlerGetConfigs },
         { type: msgType.saveConfigs, handler: handleUpdateConfigs },
         { type: msgType.resetConfigs, handler: resetConfigs },
@@ -79,7 +83,6 @@ const getLastYear = (mkt: Mercado): Mercado =>
         periodoFinal: mkt.periodoFinal - 100
     } as Mercado);
 
-
 const getNext = (msg, sendResponse) => 
     storage.get(store, response => {
         const results = response[store] as Mercado[];
@@ -105,7 +108,7 @@ const getNext = (msg, sendResponse) =>
         updateCounter();
 
         sendResponse(null);
-        openUrl(urlLocal);
+        openUrl(urlSpreadSheet);
         return;
     })
 
@@ -137,7 +140,7 @@ const equalsMarket = (src: Mercado, to: Mercado): boolean => {
 const getDataToExport = (msg, sendResponse) => 
     storage.get(store, response => {
         const lst = response[store] as Mercado[];
-        const hasToDo = !!lst.find(x => !x.dadosEmpresaAnoPassado.length || !x.dadosEmpresaAtual.length);
+        const hasToDo = lst && !!lst.find(x => !x.dadosEmpresaAnoPassado.length || !x.dadosEmpresaAtual.length);
 
         if(hasToDo){
             sendResponse(null);
@@ -147,7 +150,8 @@ const getDataToExport = (msg, sendResponse) =>
         sendResponse(lst);
     });
 
-const cleanStorage = () => storage.remove(store);
+const cleanStorageAndGoToAxaSite = () => cleanStorage(() => openUrl(urlAxa))
+const cleanStorage = (callBack = () => {}) => storage.remove(store, callBack);
 
 const updateConfigs = (cfg: PayloadConfigs, callBack) => storage.set({[storeConfig]: cfg}, callBack);
 const handleUpdateConfigs = (msg, sendresponse) => updateConfigs(msg.payload as PayloadConfigs, sendresponse)
@@ -167,6 +171,16 @@ const getConfigs = (callback: (obj: PayloadConfigs) => void): void =>
 
         callback(configs);
     });
+
+const handleFinishiesExport = (msg, sendResponse) => 
+    getConfigs(cfgs => {
+        if(!cfgs.generateRawData){
+            cleanStorageAndGoToAxaSite();
+            return;
+        }
+
+        openUrl(urlRawSpreadSheet);
+    })
 
 const resetConfigs = (msg, sendResponse) => setupConfigs(sendResponse);    
 //todo completar lista de grupos empresariais

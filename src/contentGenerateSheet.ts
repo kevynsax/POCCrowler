@@ -1,6 +1,7 @@
 import { msgType, Mensagem, Mercado, GrupoEmpresarial } from "./types";
 import * as $ from 'jquery';
 import * as GC from "@grapecity/spread-sheets";
+import '@grapecity/spread-sheets/styles/gc.spread.sheets.excel2016colorful.css';
 
 const messager = chrome.runtime.sendMessage;
 messager({
@@ -34,7 +35,7 @@ const teste = (lst: Mercado[], lstAggregateCompanies: GrupoEmpresarial[]) => {
 
     const mercado1 = lst[0];
 
-    var sheet = workbook.getActiveSheet();
+    let sheet = workbook.getActiveSheet();
     sheet.name(mercado1.nome);
     
     const styleRed = new GC.Spread.Sheets.Style();
@@ -79,6 +80,9 @@ const teste = (lst: Mercado[], lstAggregateCompanies: GrupoEmpresarial[]) => {
             sheet.setStyle(y, skip + i, item.style || styleBlack);
         })
     )
+
+    messager({ type: msgType.finishiesExportSpreadSheet } as Mensagem);
+
     return;
     sheet.addRows(11, 1);
     sheet.copyTo(10, 1, 11, 1, 1, 19, GC.Spread.Sheets.CopyToOptions.style);

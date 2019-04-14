@@ -4,8 +4,9 @@ export enum msgType{
     getNext,
     getCrowlerIsActive,
     getDataToExport,
-    cleanStorage,
     getAggregatedCompanies,
+    finishiesExportSpreadSheet,
+    cleanStorage,
     saveConfigs,
     getConfigs,
     resetConfigs

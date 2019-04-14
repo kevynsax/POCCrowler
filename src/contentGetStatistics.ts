@@ -14,15 +14,28 @@ chrome.runtime.sendMessage({
 
     const mkt = response as Mercado;
 
-    fulfillFields(mkt.idRamos, mkt.periodoInicial, mkt.periodoFinal);
+    fulfillFields(mkt.idRamos, mkt.nome, mkt.periodoInicial, mkt.periodoFinal);
 })
 
-const fulfillFields = (listIdRamos: number[], periodoInicio: number, periodoFim: number) => {
+const fulfillFields = (listIdRamos: number[], mktName: string, periodoInicio: number, periodoFim: number) => {
+    if(!validateRamos(listIdRamos, mktName)) return;
     selectRamos(listIdRamos);
     setInitialPeriod(periodoInicio);
     setFinalPeriod(periodoFim);
     setAllCompanies();
     clickGenerateTable();
+}
+const listAllRamos = (): number[] =>
+    [...($("#ctl00_ContentPlaceHolder1_edRamos")[0] as any).options].map(x => parseInt(x.value, 10));
+
+const validateRamos = (idRamos: number[], mktName: string): boolean => {
+    var idRamoNotFound = idRamos.find(x => !listAllRamos().find(z => z === x));
+    if(idRamoNotFound){
+        alert(`Id Ramo ${idRamoNotFound} not found to market ${mktName}`);
+        return false;
+    }
+
+    return true;
 }
 
 const selectRamos = (idRamos: number[]) => 
