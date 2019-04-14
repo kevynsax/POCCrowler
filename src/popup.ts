@@ -27,9 +27,11 @@ $(function() {
   const updateConfigs = () => 
     messager({
       type: msgType.getConfigs
-    } as Mensagem, (configs: PayloadConfigs) => 
+    } as Mensagem, (configs: PayloadConfigs) => {
       fields.forEach(field => 
-        $(`#${field}`).val(JSON.stringify(configs[field], null, 2))))
+        $(`#${field}`).val(JSON.stringify(configs[field], null, 2)));
+        ($('#generateRowData')[0] as any).checked = configs.generateRawData;
+    });
 
   const getValue = (idField: string): string => $.trim($(`#${idField}`).val() as string);
 
@@ -55,7 +57,7 @@ $(function() {
   $('#btnBack').click(toggleSettings);
 
   $('#btnSave').click(() => {
-    let obj : PayloadConfigs | object = {};
+    let obj : PayloadConfigs = {} as PayloadConfigs;
 
     const hasError = !!fields.filter(x => {
       var field =  $(`#${x}`);
@@ -71,6 +73,8 @@ $(function() {
 
     if(hasError)
       return;
+
+    obj.generateRawData = !!($('#generateRowData')[0] as any).checked;
     
     messager({
       type: msgType.saveConfigs,
