@@ -9,9 +9,6 @@ const store = "SusepData";
 const storeConfig = "ConfigAxaCrowler";
 const storage = chrome.storage.local;
 const urlSusep = "http://www2.susep.gov.br/menuestatistica/SES/premiosesinistros.aspx?id=54";
-const urlSpreadSheet = "https://www.grapecity.com/en/generateSpreadSheet";
-//const urlRawSpreadSheet = "https://www.grapecity.com/en/generateRawSpreadSheet";
-const urlRawSpreadSheet = "https://www.grapecity.com/en/login/";
 const urlAxa = "https://www.axa.com.br/";
 
 let tabId: number = 0;
@@ -30,7 +27,7 @@ chrome.runtime.onMessage.addListener((msg: Mensagem, info, sendResponse) => {
         { type: msgType.getConfigs, handler: handlerGetConfigs },
         { type: msgType.saveConfigs, handler: handleUpdateConfigs },
         { type: msgType.resetConfigs, handler: resetConfigs },
-    ]
+    ];
     const { handler } = lstHandlers.find(x => x.type === msg.type) || { handler: null };
     if(!handler) return;
 
@@ -110,7 +107,6 @@ const getNext = (msg, sendResponse) =>
         updateCounter();
 
         sendResponse(null);
-        openUrl(urlSpreadSheet);
         return;
     })
 
@@ -181,7 +177,7 @@ const handleFinishiesExport = (msg, sendResponse) =>
             return;
         }
 
-        openUrl(urlRawSpreadSheet);
+        openUrl(urlAxa);
     })
 
 const resetConfigs = (msg, sendResponse) => setupConfigs(sendResponse);    

@@ -16,22 +16,17 @@
     {
       "matches": ["http://www2.susep.gov.br/menuestatistica/SES/premiosesinistros.aspx?id=54"],
       "run_at": "document_end",
-      "js": ["js/vendor.js", "js/contentGetStatistics.js"]
-    },
-    {
-      "matches": ["https://www.grapecity.com/en/generateSpreadSheet"],
-      "run_at": "document_end",
-      "js": ["js/vendor.js", "js/contentGenerateSheet.js"]
-    },
-    {
-      "matches": ["https://www.grapecity.com/en/login/"],
-      "run_at": "document_end",
-      "js": ["js/vendor.js", "js/contentGenerateRawSheet.js"]
+      "js": ["js/vendor.js", "js/contentGetStatistics.js", "js/contentGenerateSheet.js"]
     },
     {
       "matches": ["http://www2.susep.gov.br/menuestatistica/SES/resp_premiosesinistros.aspx"],
       "run_at": "document_end",
       "js": ["js/vendor.js", "js/contentGetTableData.js"]
+    },
+    {
+      "matches": ["https://www.axa.com.br/"],
+      "run_at": "document_end",
+      "js": ["js/vendor.js", "js/contentGenerateRawSheet.js"]
     }
   ],
 
