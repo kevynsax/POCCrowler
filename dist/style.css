@@ -101,7 +101,7 @@ span {
 
 textarea {
     width: 484px;
-    height: 175px;
+    height: 150px;
     border-radius: 3px;
     resize: vertical;
     transition-property: border-color outline-color border-width;

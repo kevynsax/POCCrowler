@@ -13,8 +13,10 @@ const urlSpreadSheet = "https://www.grapecity.com/en/generateSpreadSheet";
 //const urlRawSpreadSheet = "https://www.grapecity.com/en/generateRawSpreadSheet";
 const urlRawSpreadSheet = "https://www.grapecity.com/en/login/";
 const urlAxa = "https://www.axa.com.br/";
+
 let tabId: number = 0;
 let count: number = 0;
+
 chrome.runtime.onMessage.addListener((msg: Mensagem, info, sendResponse) => {
     const lstHandlers: {type: msgType, handler: (msg: Mensagem, sendResponse) => void}[] = [
         { type: msgType.startProcess, handler: startProcess },
@@ -209,7 +211,9 @@ const setupConfigs = callback => {
         ],
         aggregatedCompanies: [
             {nome: "MAPFRE BANCO DO BRASIL", idEmpresas: [6238, 6785]},
-        ]
+        ],
+        generateRawData: false,
+        nameExportedFile: "Template comparativo de mercado"
     } as PayloadConfigs, callback);
 }
 

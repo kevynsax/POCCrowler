@@ -25,7 +25,7 @@
     },
     {
       "matches": ["https://www.grapecity.com/en/login/"],
-      "run_at": "document_start",
+      "run_at": "document_end",
       "js": ["js/vendor.js", "js/contentGenerateRawSheet.js"]
     },
     {

@@ -15,7 +15,7 @@ $(function() {
     window.close();
   });
 
-  const fields = ['markets', 'aggregatedCompanies'];
+  const textAreaFields = ['markets', 'aggregatedCompanies'];
 
   const toggleSettings = () => {
     $("body").toggleClass("bodyConfig");
@@ -27,10 +27,13 @@ $(function() {
   const updateConfigs = () => 
     messager({
       type: msgType.getConfigs
-    } as Mensagem, (configs: PayloadConfigs) => {
-      fields.forEach(field => 
+    } as Mensagem, 
+    (configs: PayloadConfigs) => {
+      textAreaFields.forEach(field => 
         $(`#${field}`).val(JSON.stringify(configs[field], null, 2)));
-        ($('#generateRowData')[0] as any).checked = configs.generateRawData;
+
+      ($('#generateRowData')[0] as any).checked = configs.generateRawData;
+      $("#nameExportedFile").val(configs.nameExportedFile);
     });
 
   const getValue = (idField: string): string => $.trim($(`#${idField}`).val() as string);
@@ -49,7 +52,7 @@ $(function() {
   $('#btnReestoreSettings').click(() => 
     messager({ type: msgType.resetConfigs } as Mensagem, () => {
       updateConfigs();
-      const changeClass = () => fields.forEach(x => $(`#${x}`).toggleClass('hasSuccess'));
+      const changeClass = () => textAreaFields.forEach(x => $(`#${x}`).toggleClass('hasSuccess'));
       changeClass();
       setTimeout(changeClass, 800);
     }));
@@ -59,7 +62,7 @@ $(function() {
   $('#btnSave').click(() => {
     let obj : PayloadConfigs = {} as PayloadConfigs;
 
-    const hasError = !!fields.filter(x => {
+    const hasError = !!textAreaFields.filter(x => {
       var field =  $(`#${x}`);
       field.removeClass("hasError");
 
@@ -75,6 +78,7 @@ $(function() {
       return;
 
     obj.generateRawData = !!($('#generateRowData')[0] as any).checked;
+    obj.nameExportedFile = $("#nameExportedFile").val() as string;
     
     messager({
       type: msgType.saveConfigs,

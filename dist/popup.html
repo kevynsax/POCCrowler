@@ -36,7 +36,18 @@
       <h2>Configurações</h2>
       <img src="settings_restore.svg" title="Reestore Backup Settings" class="settings" id="btnReestoreSettings" />
     </div>
-    <div class="configs">
+    <div class="configs">    
+      <div>
+        <span>File Name Exported</span>
+        <input type="text" id="nameExportedFile">
+      </div>
+      <div class="inline">
+        <label class="switch">
+          <input type="checkbox" id="generateRowData">
+          <span class="slider round"></span>
+        </label>
+        <span>Generate raw data</span>
+      </div>  
       <div>
         <span>Ramos</span>
         <textarea id="markets"
@@ -46,13 +57,6 @@
         <span>Grupos Empresariais</span>
         <textarea id="aggregatedCompanies"
           placeholder='Insira aqui os Grupos empresariais, no formato: &#10;[&#10;{"nome": "DPVAT", "idEmpresas": [132, 154, 132]},&#10;{"nome": "HDI", "idEmpresas": [1571, 6572]}&#10;]'></textarea>
-      </div>
-      <div class="inline">
-        <label class="switch">
-          <input type="checkbox" id="generateRowData">
-          <span class="slider round"></span>
-        </label>
-        <span>Generate raw data</span>
       </div>
       <div class="buttonBar">
         <button id="btnBack" class="btnDefault">Back</button>
