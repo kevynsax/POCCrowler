@@ -25,18 +25,6 @@ const fulfillFields = (listIdRamos: number[], mktName: string, periodoInicio: nu
     setAllCompanies();
     clickGenerateTable();
 }
-const listAllRamos = (): number[] =>
-    [...($("#ctl00_ContentPlaceHolder1_edRamos")[0] as any).options].map(x => parseInt(x.value, 10));
-
-const validateRamos = (idRamos: number[], mktName: string): boolean => {
-    var idRamoNotFound = idRamos.find(x => !listAllRamos().find(z => z === x));
-    if(idRamoNotFound){
-        alert(`Id Ramo ${idRamoNotFound} not found to market ${mktName}`);
-        return false;
-    }
-
-    return true;
-}
 
 const selectRamos = (idRamos: number[]) => 
     $("#ctl00_ContentPlaceHolder1_edRamos").val(idRamos.map(x => `${padLeft(x, 4, '0')}      `));
@@ -53,8 +41,18 @@ const setAllCompanies = () =>
 const clickGenerateTable = () =>
     $("#ctl00_ContentPlaceHolder1_btnProcessao").click();
 
+const listAllRamos = (): number[] =>
+    [...($("#ctl00_ContentPlaceHolder1_edRamos")[0] as any).options].map(x => parseInt(x.value, 10));
 
+const validateRamos = (idRamos: number[], mktName: string): boolean => {
+    var idRamoNotFound = idRamos.find(x => !listAllRamos().find(z => z === x));
+    if(idRamoNotFound){
+        alert(`Id Ramo: ${idRamoNotFound} not found to market: ${mktName}`);
+        return false;
+    }
 
+    return true;
+}
 
 const padLeft = function (src, n ,str){
     return Array(n - String(src).length+1).join(str||'0')+src;
