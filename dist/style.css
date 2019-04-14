@@ -1,13 +1,7 @@
 body {
     font-family: 'Source Sans Pro', sans-serif;
     font-size: 100%;
-    width: 300px;
-    height: 200px;
-}
-
-.bodyConfig {
-    width: 500px;
-    height: 97vh;
+    min-width: 300px;
 }
 
 button {
@@ -30,7 +24,7 @@ button:hover {
 button.btnDefault {
     background: white;
     border: 1px solid white;
-    color: black;
+    color: #333;
     font-weight: 600;
 }
 
@@ -106,7 +100,8 @@ span {
 }
 
 textarea {
-    height: 200px;
+    width: 484px;
+    height: 175px;
     border-radius: 3px;
     resize: vertical;
     transition-property: border-color outline-color border-width;
@@ -136,4 +131,13 @@ textarea {
 .hasSuccess{
     border: 2px solid #218838;
     outline-color: #218838;
+}
+
+.configs > .inline{
+    flex-direction: row;
+}
+
+.configs > .inline > span:last-child{
+    padding-left: 4px;
+    font-weight: 400;
 }

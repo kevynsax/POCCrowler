@@ -3,10 +3,11 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="height=device-height, width=device-width, initial-scale=1.0">
   <title>Getting Started Extension's Popup</title>
   <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
   <link href="style.css" rel="stylesheet">
+  <link href="switch.css" rel="stylesheet">
   <script src="js/vendor.js"></script>
 </head>
 
@@ -45,6 +46,13 @@
         <span>Grupos Empresariais</span>
         <textarea id="aggregatedCompanies"
           placeholder='Insira aqui os Grupos empresariais, no formato: &#10;[&#10;{"nome": "DPVAT", "idEmpresas": [132, 154, 132]},&#10;{"nome": "HDI", "idEmpresas": [1571, 6572]}&#10;]'></textarea>
+      </div>
+      <div class="inline">
+        <label class="switch">
+          <input type="checkbox">
+          <span class="slider round"></span>
+        </label>
+        <span>Gerar Dados Brutos</span>
       </div>
       <div class="buttonBar">
         <button id="btnBack" class="btnDefault">Back</button>

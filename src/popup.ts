@@ -28,7 +28,8 @@ $(function() {
     messager({
       type: msgType.getConfigs
     } as Mensagem, (configs: PayloadConfigs) => 
-    fields.forEach(field => $(`#${field}`).val(JSON.stringify(configs[field]))))
+      fields.forEach(field => 
+        $(`#${field}`).val(JSON.stringify(configs[field], null, 2))))
 
   const getValue = (idField: string): string => $.trim($(`#${idField}`).val() as string);
 
