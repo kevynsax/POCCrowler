@@ -210,7 +210,7 @@ const setupConfigs = callback => {
             {nome: "PORTO SEGURO", idEmpresas: [5886, 5355, 3182, 6033]},
             {nome: "ZURICH", idEmpresas: [5495, 5941]}, // ZURICH SANTANDER BRASIL SEGUROS E PREVIDÊNCIA S.A. // ZURICH SANTANDER BRASIL SEGUROS S.A.
             {nome: "HDI", idEmpresas: [1571, 6572]},
-            {nome: "AXA", idEmpresas: [1431, 2852, 6696]},
+            {nome: "AXA", idEmpresas: [1431, 2852, 6696], isAxa: true},
             {nome: "BRADESCO", idEmpresas: [5312, 5533]},
             {nome: "COFACE", idEmpresas: [6335]}, // COFACE DO BRASIL SEGUROS DE CRÉDITO S/A
             {nome: "ICATU", idEmpresas: [5142, 5657]},

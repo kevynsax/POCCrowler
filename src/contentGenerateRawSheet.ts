@@ -15,18 +15,12 @@ const startProccess = (allData: Mercado[]) => {
     const start = (cfgs: PayloadConfigs) => {
         if(!cfgs.generateRawData)
             return;
-        prepareHtml();
+            
         generateRawSpreadSheet(allData, cfgs);
     };
     messager({ type: msgType.getConfigs } as Mensagem, start);
 }
 messager({ type: msgType.getDataToExport } as Mensagem, startProccess);
-
-const prepareHtml = () => {
-    $("head").html(`<link rel="styleSheet" href="grape.css" />`);
-    $("body").html("<div class='footer'></div>");
-    $("footer").html("<div class='footer'></div>");   
-}
 
 const border = {
     top: {style:'thin'},
@@ -107,7 +101,7 @@ const generateSheets = (workbook: Excel.Workbook, data: EstatisticaEmpresa[], ti
             color: { argb: "333333" }
         };
 
-        if(!!(index % 1))
+        if(!!(index % 2))
             row.fill = {
                 type: "pattern",
                 pattern: "solid",
