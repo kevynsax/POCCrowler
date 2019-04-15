@@ -1,9 +1,30 @@
-import { msgType, Mensagem, Mercado, GrupoEmpresarial } from "./types";
+import { msgType, Mensagem, Mercado, GrupoEmpresarial, EstatisticaEmpresa, PayloadConfigs } from "./types";
 import * as $ from 'jquery';
-import * as GC from "@grapecity/spread-sheets";
-import '@grapecity/spread-sheets/styles/gc.spread.sheets.excel2016colorful.css';
+import * as Excel from 'exceljs';
+
+const ExcelJS = require("exceljs/dist/es5/exceljs.browser");
+
+
+interface lineSheetData{
+    premioEmitidoEmpresaAgrupada: number;
+    idSusep: number;
+    empresa: string;
+    premioEmitidoAtu: number;
+    mktShare: string;
+    premioEmitidoAnt: number;
+    var: string;
+    premioGanho: number;
+    despesaResseguro: number;
+    sinistroOcorrido: number;
+    receitaResseguro: number;
+    despesaComercial: number;
+    sinistralidade: number;
+    rvne: number;
+    isGroup: boolean
+}
 
 const messager = chrome.runtime.sendMessage;
+
 messager({
     type: msgType.getDataToExport
 } as Mensagem, response => {
@@ -12,104 +33,148 @@ messager({
 
     const lst = response as Mercado[];
 
-    console.log(lst);
-    generateSpreadSheet(lst)
+    messager({ type: msgType.getConfigs } as Mensagem, 
+        (configs: PayloadConfigs) => generateSpreadSheet(lst, configs.aggregatedCompanies, configs.nameExportedFile));    
+
 })
 
-const generateSpreadSheet = (lst: Mercado[]) => {
-    
-    let element = "<div style='height:700px ; width :100%;' id='sheet'></div>";
-    $("body").html(element);
+const generateSpreadSheet = (listaMarket: Mercado[], lstGroups: GrupoEmpresarial[], nameExportedFile: string) => {
+    const workbook = new ExcelJS.Workbook();
+    workbook.created = new Date();
+    workbook.creator = "Tony Vandré Klava";
+    workbook.properties.date1904 = true;
 
-    messager({ type: msgType.getAggregatedCompanies } as Mensagem, lstGroups => teste(lst, lstGroups));    
+    workbook.views = [
+        {
+          x: 0, y: 0, width: 10000, height: 20000,
+          firstSheet: 0, activeTab: 1, visibility: 'visible'
+        }
+    ];
+
+    listaMarket.forEach(item => generateSheet(workbook, item, lstGroups));
+    downloadFile(workbook, nameExportedFile);
 }
 
-const teste = (lst: Mercado[], lstAggregateCompanies: GrupoEmpresarial[]) => {
+const generateSheet = (workbook: Excel.Workbook, mkt: Mercado, lstGroups: GrupoEmpresarial[]) => {
+    const sheet = workbook.addWorksheet(mkt.nome, {
+        views: [{showGridLines: true}]
+    });
+    const labelPeriodoInicial = mkt.periodoFinal.toString().substr(0,4);
+    const labelPeriodoFinal = mkt.periodoFinal.toString().substr(4,2);
+    const firsLabel = `YTD ${labelPeriodoInicial}/${labelPeriodoFinal}  - ${mkt.nome} (${mkt.idRamos.join(', ')})`;
+    const columns = [
+        { id: "empresa", name: firsLabel, subTitle: "Totais", isStyleRed: true},
+        { id: "premioEmitidoAtu", name: `Prêmio Emitido (${mkt.periodoFinal.toString().substr(0,4)})` },
+        { id: "mktShare", name: `MKT Share` , subTitle: "100%"},
+        { id: "premioEmitidoAnt", name: `Prêmio Emitido (${mkt.periodoInicial.toString().substr(0,4)})` },
+        { id: "var", name: `Var.`, subTitle: " "},
+        { id: "premioGanho", name: `Prêmio Ganho` },
+        { id: "despesaResseguro", name: `Despesa c/ Resseguro` },
+        { id: "sinistroOcorrido", name: `Sinistro Ocorrido` },
+        { id: "receitaResseguro", name: `Receita c/ Resseguro` },
+        { id: "despesaComercial", name: `Despesa Comercial` },
+        { id: "sinistralidade", name: `Sinistralidade` },
+        { id: "rvne", name: `RVNE` },
+    ] 
+    sheet.columns = columns.map(item => ({
+        header: item.name,
+        key: item.id
+    }));
     
-    $.support.cors = true;
-    GC.Spread.Sheets.LicenseKey = "E628286641333291#B0wN4cKRTN7BlZxBjNYF7Y9E5QYBVZMJlSqh7Zod7RZZTdJRmc8FUcpR4V9NTRFRVNpFzQ8EDOTNmRUBneqdjdpp6YBhjTMxmMiFWNytkQVl6LL3ka0F5Y9QWUZ5ENv5USJdTTrVEcMhFV7l4MqN5ZvQzb4lVMPFnNCNWWSRUO4V7V9UHRUJWUlR4cRxGVqdDOvVnblp4RIFnS7QGa4UzKvRkZEZ5NHFUU4g6Rqp7NKhUTst6Svpkb5AXT5kERuNEUYtET9JXexl6bTtWWu9GaKBzdKFlTR9UY6sUUMJHWSB7LoZHRvJVbVdTerE4TutiVDhDc8JUMa9kYwgmbidzbmlDThtUYwonQMxEeiVGRiojITJCLiUEMFFTO7YjI0ICSiwCMwMzM5gDMyETM0IicfJye#4Xfd5nIJZUOCJiOiMkIsIiMx8idgMlSgQWYlJHcTJiOi8kI1tlOiQmcQJCLiQTM8QDNwAiMyATM8EDMyIiOiQncDJCLi86Yu46bj9Se4l6YlBXYydmLqwSbvNmL9RXajVGchJ7ZuoCLwpmLvNmL9RXajVGchJ7ZuoCLt36YuUmbvRnbl96bw56bj9iKiojIz5GRiwiIuMmbJBSe4l6QlBXYydkI0ISYONkIsUWdyRnOiwmdFJCLiETOyMzMzEDN6YDOygjM6IiOiQWSiwSflNHbhZmOiI7ckJye0ICbuFkI1pjIEJCLi4TPRtCeF56N4FFVCNlNRZ5YmN5LSZkZ6lUU0RUQvdka5x6aq3SRntiMTh5NLNDRwlWcJJ7Y7InevIjS6gmbQdmcsFXdyVXagVIZ";
-    const workbook = new GC.Spread.Sheets.Workbook(document.getElementById("sheet"));
+    sheet.addRow(columns.map(item => item.subTitle || 0));
 
-    //workbook.suspendPaint();
-    //workbook.suspendCalcService(false);
+    const isEmptyLine = (l: lineSheetData):boolean =>
+        !l.premioEmitidoAtu &&
+        !l.premioEmitidoAnt &&
+        !l.premioGanho &&
+        !l.despesaResseguro &&
+        !l.sinistroOcorrido &&
+        !l.receitaResseguro &&
+        !l.despesaComercial &&
+        !l.sinistralidade &&
+        !l.rvne;
 
-    const mercado1 = lst[0];
+    const getGroup = (l: EstatisticaEmpresa): GrupoEmpresarial => 
+        lstGroups.find(group => !!group.idEmpresas.find(c => c === l.idSusep));
 
-    let sheet = workbook.getActiveSheet();
-    sheet.name(mercado1.nome);
-    
-    const styleRed = new GC.Spread.Sheets.Style();
-    styleRed.backColor = "red";
-    styleRed.foreColor = "white";
-    
-    const styleBlack = new GC.Spread.Sheets.Style();
-    styleBlack.backColor = "black";
-    styleBlack.foreColor = "white";
+    const getAggregatedPremioEmitido = (l: EstatisticaEmpresa) =>{
+        const group = getGroup(l);
+        if(!group)
+            return l.premioEmitido;
 
-    const labelPeriodoInicial = mercado1.periodoFinal.toString().substr(0,4);
-    const labelPeriodoFinal = mercado1.periodoFinal.toString().substr(4,2);
-    const firsLabel = `YTD ${labelPeriodoInicial}/${labelPeriodoFinal}  - ${mercado1.nome} (${mercado1.idRamos.join(', ')})`;
-    [[
-        { name: firsLabel, style: styleRed, agrupar: 2 },
-        { name: `Prêmio Emitido (${mercado1.periodoFinal.toString().substr(0,4)})` },
-        { name: `MKT Share` },
-        { name: `Prêmio Emitido (${mercado1.periodoInicial.toString().substr(0,4)})` },
-        { name: `Var.` },
-        { name: `Prêmio Ganho` },
-        { name: `Despesa c/ Resseguro` },
-        { name: `Sinistro Ocorrido` },
-        { name: `Receita c/ Resseguro` },
-        { name: `Despesa Comercial` },
-        { name: `Sinistralidade` },
-        { name: `RVNE` },
-    ],
-    [  
-        { name: `Class.`},
-        { name: `Totais`},
-        { name: ``},
-        { name: `100%`},
-        ...Array.from({length: 9}, z => ({name: ''}))
-    ]]
-    .forEach((line, y) => 
-        line.forEach((item, i, list) => {
-            if (item.agrupar) 
-                sheet.addSpan(0,0,1,item.agrupar);
-            const skip = list.slice(0, i).filter(x => x.agrupar).reduce((agregado, atual) => agregado + atual.agrupar -1, 0);
-
-            sheet.setValue(y, skip + i, item.name);
-            sheet.setStyle(y, skip + i, item.style || styleBlack);
-        })
-    )
-
-    //messager({ type: msgType.finishiesExportSpreadSheet } as Mensagem);
-
-    return;
-    sheet.addRows(11, 1);
-    sheet.copyTo(10, 1, 11, 1, 1, 19, GC.Spread.Sheets.CopyToOptions.style);
-
-    sheet.setValue(11, 1, "Revenue 8");
-
-    for (var c = 3; c < 15; c++) {
-        sheet.setValue(11, c, Math.floor(Math.random() * 200) + 10);
+        return mkt.dadosEmpresaAtual
+                    .filter(x => !!group.idEmpresas.find(z => z == x.idSusep))
+                    .reduce((agregado, item) => agregado + item.premioEmitido, 0)
     }
 
-    var data = new GC.Spread.Sheets.Range(11, 3, 1, 12);
-    var setting = new GC.Spread.Sheets.Sparklines.SparklineSetting();
-    var opt = setting.options as any;
-    opt.seriesColor = "Text 2";
-    opt.lineWeight = 1;
-    opt.showLow = true;
-    opt.showHigh = true;
-    opt.lowMarkerColor = "Text 2";
-    opt.highMarkerColor = "Text 1";
+    const allLines: lineSheetData[] = mkt.dadosEmpresaAtual.map(item => {
+        const lastYearData = mkt.dadosEmpresaAnoPassado.find(e => e.idSusep == item.idSusep)
+        return {
+            idSusep: item.idSusep,
+            empresa: item.empresa,
+            premioEmitidoEmpresaAgrupada: getAggregatedPremioEmitido(item),
+            premioEmitidoAtu: item.premioEmitido,
+            mktShare: "",
+            premioEmitidoAnt: lastYearData.premioEmitido,  
+            var: "",
+            premioGanho: item.premioGanho,
+            despesaResseguro: item.despesaResseguro,
+            sinistroOcorrido: item.sinistroOcorrido,
+            receitaResseguro: item.receitaResseguro,
+            despesaComercial: item.despesaComercial,
+            sinistralidade: item.sinistralidade,
+            rvne: item.rvne
+        } as lineSheetData;
+    });
 
-    sheet.setSparkline(11, 2, data, GC.Spread.Sheets.Sparklines.DataOrientation.horizontal, GC.Spread.Sheets.Sparklines.SparklineType.line, setting);
+    const lineGroups:lineSheetData[] = lstGroups.map(g => {
+        const companies = allLines.filter(a => !!g.idEmpresas.find(x => x === a.idSusep));
+        const sum = (prop:string):number => companies.reduce((a, b) => a + b[prop], 0);
+        return {
+            empresa: g.nome,
+            premioEmitidoAnt: sum("premioEmitidoAnt"),
+            premioEmitidoAtu: sum("premioEmitidoAtu"),
+            premioGanho: sum("premioEmitidoAnt"),
+            despesaResseguro: sum("premioEmitidoAnt"),
+            sinistroOcorrido: sum("sinistroOcorrido"),
+            receitaResseguro: sum("receitaResseguro"),
+            despesaComercial: sum("despesaComercial"),
+            sinistralidade: sum("sinistralidade"),
+            rvne: sum("rvne"),
+            isGroup: true
+        } as lineSheetData
+    });
 
-    sheet.setFormula(11, 15, "=SUM([@[Jan]:[Dec]])")
-    sheet.setValue(11, 16, 0.15);
-    sheet.copyTo(10, 17, 11, 17, 1, 13, GC.Spread.Sheets.CopyToOptions.formula);
+    [...allLines, ...lineGroups]
+    .filter(line => !isEmptyLine(line))
+    .sort((a: lineSheetData, b: lineSheetData) => {
+        if (a.premioEmitidoEmpresaAgrupada > b.premioEmitidoEmpresaAgrupada)
+          return 1;
 
-    workbook.resumeCalcService(false);
-    workbook.resumePaint();
+        if (a.premioEmitidoEmpresaAgrupada < b.premioEmitidoEmpresaAgrupada)
+          return -1;
 
+        if(a.isGroup)
+            return 1;
+
+        return 0;
+    })
+    .forEach(line => sheet.addRow(line));
 }
+
+
+const downloadFile = (workbook: Excel.Workbook, fileName: string) =>
+    workbook.xlsx.writeBuffer()
+        .then(res => {
+            const dataFile = new Blob([res], {type: "octet/stream"});
+            const url = window.URL.createObjectURL(dataFile);
+
+            const a = document.createElement("a");
+            a.setAttribute("style", "display: none");
+            a.href = url;
+            a.download = `${fileName}.xlsx`;
+            a.click();
+
+            window.URL.revokeObjectURL(url);
+        });
+
