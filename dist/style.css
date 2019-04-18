@@ -59,6 +59,10 @@ h2 {
     transform: translateX(-50%);
 }
 
+.version {
+    font-style: italic;    
+}
+
 .form {
     display: flex;
     height: 100%;

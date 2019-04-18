@@ -163,11 +163,11 @@ const generateSubTitle = (sheet: Excel.Worksheet, data: EstatisticaEmpresa[]) =>
         const cell = totalRows.getCell(idCol);
         const prop = sheet.getColumn(idCol).key;
 
-        const sum = data.reduce((a, b) => a + b[prop], 0)
-        cell.value = {
+        const sum = data.reduce((a, b) => a + b[prop], 0);
+/*        cell.value = {
             formula: `=SUM(${alphabet[i]}${skipTextColumns + 1}:${alphabet[i]}${data.length + 2})`,
             result: sum
-        }
+        } */
         cell.numFmt = hasDecimalPlaces(sum) ? decimalFormatting : intFormatting;
     })
 }
