@@ -3,7 +3,7 @@
 
   "name": "Crowler Susep - Axa Seguros",
   "description": "Get statistcs from SUSEP",
-  "version": "1.1",
+  "version": "1.2.1",
 
   "browser_action": {
     "default_icon": "icon.png",

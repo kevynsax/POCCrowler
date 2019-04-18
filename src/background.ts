@@ -144,7 +144,7 @@ const equalsMarket = (src: Mercado, to: Mercado): boolean => {
 const getDataToExport = (msg, sendResponse) => 
     storage.get(store, response => {
         const lst = response[store] as Mercado[];
-        const hasToDo = lst && !!lst.find(x => !x.dadosEmpresaAnoPassado.length || !x.dadosEmpresaAtual.length);
+        const hasToDo = lst && !!lst.find(x => !x.buscouDadosEmprAtual || !x.buscouDadosEmprPassado);
 
         if(hasToDo){
             sendResponse(null);
@@ -200,6 +200,14 @@ const setupConfigs = callback => {
         { nome: "Port", idRamos: [1417] },
         { nome: "Property", idRamos: [196, 141, 118] },
         { nome: "PRCB", idRamos: [748, 749] },
+        { nome: "Property RNO", idRamos: [196] },
+        { nome: "Property Compr. Emp.", idRamos: [118] },
+        { nome: "Property Total", idRamos: [196, 141, 118] },
+        { nome: "Marine Hull", idRamos: [1433] },
+        { nome: "cyber", idRamos: [327] },
+        { nome: "Surety", idRamos: [775, 776] },
+        { nome: "Condomínio", idRamos: [116] },
+        { nome: "Miscellaneous", idRamos: [171] },
     ];
 
     const allIds = mkts.map(x => x.idRamos).reduce((all, item) => [...all, ...item], []);

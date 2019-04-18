@@ -294,7 +294,7 @@ const generateSheet = (workbook: Excel.Workbook, mkt: Mercado, lstGroups: GrupoE
     
     sheet.properties.outlineLevelRow = 1;
 
- //   messager({ type: msgType.finishiesExportSpreadSheet } as Mensagem)
+    messager({ type: msgType.finishiesExportSpreadSheet } as Mensagem)
 }
 
 const downloadFile = (workbook: Excel.Workbook, fileName: string) =>
