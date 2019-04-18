@@ -155,7 +155,7 @@ const generateSheet = (workbook: Excel.Workbook, mkt: Mercado, lstGroups: GrupoE
             premioEmitidoAtu: item.premioEmitido,
             mktShare: "",
             premioEmitidoAnt: lastYearData.premioEmitido,  
-            var: item.premioEmitido > lastYearData.premioEmitido ? 1 : 0,
+            var: 0, //item.premioEmitido > lastYearData.premioEmitido ? 1 : 0,
             premioGanho: item.premioGanho,
             despesaResseguro: item.despesaResseguro,
             sinistroOcorrido: item.sinistroOcorrido,
@@ -187,15 +187,14 @@ const generateSheet = (workbook: Excel.Workbook, mkt: Mercado, lstGroups: GrupoE
         } as lineSheetData
     });
     
-    const allLines = [...dataLines, ...lineGroups];
-    
-    const calcTotal = prop => allLines.reduce((a, b) => a + b[prop],0);
+    const calcTotal = prop => dataLines.reduce((a, b) => a + b[prop],0);
     const rowSubTitle = sheet.addRow(columns.map(item => item.subTitle || calcTotal(item.id)));
 
     sheet.columns.forEach((col, o) => {
         const cell = rowSubTitle.getCell(o + 1);
         cell.numFmt = hasDecimalPlaces(cell.value as number) ? decimalFormatting : intFormatting;
     })
+    const allLines = [...dataLines, ...lineGroups];
 
     const totalPremioEmitido = calcTotal(columns[2].id);
     const totalPremioEmitidoAnoPassado = calcTotal(columns[4].id);
@@ -236,6 +235,9 @@ const generateSheet = (workbook: Excel.Workbook, mkt: Mercado, lstGroups: GrupoE
         mktShare.value = `${(roundNumber(line.premioEmitidoAtu * 1000 / totalPremioEmitido, 1) / 10).toFixed(2)}%`;
         mktShare.numFmt = "00.0%";
         
+        const mktVar = row.getCell(6);
+        mktVar.value = line.premioEmitidoAtu > line.premioEmitidoAnt ? 1 : 0;
+
         Object.keys(line).forEach((prop, i) => {
             const idCol = i + 1;
             const cell = row.getCell(idCol);
@@ -292,7 +294,7 @@ const generateSheet = (workbook: Excel.Workbook, mkt: Mercado, lstGroups: GrupoE
     
     sheet.properties.outlineLevelRow = 1;
 
-    messager({ type: msgType.finishiesExportSpreadSheet } as Mensagem)
+ //   messager({ type: msgType.finishiesExportSpreadSheet } as Mensagem)
 }
 
 const downloadFile = (workbook: Excel.Workbook, fileName: string) =>

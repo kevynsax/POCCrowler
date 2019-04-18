@@ -56,7 +56,9 @@ const startProcess = (msg: Mensagem) =>
             periodoInicial: periodoInicial,
             periodoFinal: periodoFinal,
             dadosEmpresaAnoPassado: [],
-            dadosEmpresaAtual: []
+            dadosEmpresaAtual: [],
+            buscouDadosEmprAtual: false,
+            buscouDadosEmprPassado: false
         } as Mercado))});
 
         chrome.tabs.query(queryInfo, tabs => {
@@ -90,14 +92,14 @@ const getNext = (msg, sendResponse) =>
             return;
         }
 
-        const nextActualYear = results.find(x => !x.dadosEmpresaAtual.length);
+        const nextActualYear = results.find(x => !x.buscouDadosEmprAtual );
         if(!!nextActualYear){
             updateCounter();
             sendResponse(nextActualYear)
             return;
         }
 
-        const nextLastYear = results.find(x => !x.dadosEmpresaAnoPassado.length);
+        const nextLastYear = results.find(x => !x.buscouDadosEmprPassado);
         if(!!nextLastYear){
             updateCounter();
             sendResponse(getLastYear(nextLastYear));
@@ -121,10 +123,14 @@ const insertData = (msg: Mensagem, callBack: () => void) =>
         const meta = payload.metadata;
         let mkt = results.find(x => equalsMarket(x, meta));
 
-        if(mkt.periodoInicial === meta.periodoInicial)
+        if(mkt.periodoInicial === meta.periodoInicial){
             mkt.dadosEmpresaAtual = payload.tableData;
-        else
+            mkt.buscouDadosEmprAtual = true; 
+        }
+        else{
             mkt.dadosEmpresaAnoPassado = payload.tableData;
+            mkt.buscouDadosEmprPassado = true;
+        }
 
         const newValues = [...results.filter(x => !equalsMarket(x, meta)), mkt];
         storage.set({[store]: newValues}, callBack)
@@ -208,7 +214,7 @@ const setupConfigs = callback => {
         aggregatedCompanies: [
             {nome: "MAPFRE BANCO DO BRASIL", idEmpresas: [6238, 6211, 6785, 6181, 3289]},  // MAPFRE VIDA S.A.
             {nome: "PORTO SEGURO", idEmpresas: [5886, 5355, 3182, 6033]},
-            {nome: "ZURICH", idEmpresas: [5495, 5941]}, // ZURICH SANTANDER BRASIL SEGUROS E PREVIDÊNCIA S.A. // ZURICH SANTANDER BRASIL SEGUROS S.A.
+            {nome: "ZURICH", idEmpresas: [5495, 5941, 6564]}, // ZURICH SANTANDER BRASIL SEGUROS E PREVIDÊNCIA S.A. 
             {nome: "HDI", idEmpresas: [1571, 6572]},
             {nome: "AXA", idEmpresas: [1431, 2852, 6696], isAxa: true},
             {nome: "BRADESCO", idEmpresas: [5312, 5533]},

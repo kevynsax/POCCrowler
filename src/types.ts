@@ -54,6 +54,8 @@ export interface Mercado{
     periodoFinal: number;
     dadosEmpresaAtual: EstatisticaEmpresa[];
     dadosEmpresaAnoPassado: EstatisticaEmpresa[];
+    buscouDadosEmprAtual: boolean;
+    buscouDadosEmprPassado: boolean;
 }
 
 export interface GrupoEmpresarial{
