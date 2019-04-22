@@ -14,6 +14,7 @@ chrome.runtime.sendMessage({
 
     const market = getMetadata();
     const tableData = getTable();
+    market.totalSinistridade = totalSinistralidade;
     
     const newMsg: Mensagem = {
         type: msgType.insertData, 
@@ -21,6 +22,8 @@ chrome.runtime.sendMessage({
     
     chrome.runtime.sendMessage(newMsg);
 })
+
+let totalSinistralidade = 0;
 
 const getMetadata = (): Mercado => ({
     idRamos: $("#ctl00_ContentPlaceHolder1_lblRamos")[0].innerText.split(", ").map(x => parse(x)),
@@ -30,6 +33,7 @@ const getMetadata = (): Mercado => ({
 
 const getTable = (): EstatisticaEmpresa[] => {
     var lines = [... $("#ctl00_ContentPlaceHolder1_gvSaida tbody tr")].map((x: any) => [...x.cells].map(x => x.innerText));
+    totalSinistralidade = parseFloat(replaceAll(lines[lines.length-1][16], /\,/, "."));
     return lines.slice(1, lines.length-2).map(x => ({
         idSusep: parse(x[0]),
         empresa: x[1],

@@ -56,6 +56,7 @@ export interface Mercado{
     dadosEmpresaAnoPassado: EstatisticaEmpresa[];
     buscouDadosEmprAtual: boolean;
     buscouDadosEmprPassado: boolean;
+    totalSinistridade: number;
 }
 
 export interface GrupoEmpresarial{

@@ -174,13 +174,13 @@ const generateSheet = (workbook: Excel.Workbook, mkt: Mercado, lstGroups: GrupoE
             empresa: g.nome,
             premioEmitidoAnt: sum("premioEmitidoAnt"),
             premioEmitidoAtu: sum("premioEmitidoAtu"),
-            premioGanho: sum("premioEmitidoAnt"),
-            despesaResseguro: sum("premioEmitidoAnt"),
+            premioGanho:      sum("premioGanho"),
+            despesaResseguro: sum("despesaResseguro"),
             sinistroOcorrido: sum("sinistroOcorrido"),
             receitaResseguro: sum("receitaResseguro"),
             despesaComercial: sum("despesaComercial"),
-            sinistralidade: sum("sinistralidade"),
-            rvne: sum("rvne"),
+            sinistralidade:   sum("sinistralidade"),
+            rvne:             sum("rvne"),
             premioEmitidoEmpresaAgrupada: agg,
             isGroup: true,
             isAxa: g.isAxa
@@ -205,6 +205,9 @@ const generateSheet = (workbook: Excel.Workbook, mkt: Mercado, lstGroups: GrupoE
     //set column var
     rowSubTitle.getCell(6).value = 
         totalPremioEmitido > totalPremioEmitidoAnoPassado ? 1 : 0;
+
+    //set column sinestridade
+    rowSubTitle.getCell(12).value = mkt.totalSinistridade;
 
     let countClassification = 1;
     allLines
