@@ -1,5 +1,6 @@
 import * as $ from 'jquery';
 import { Mensagem, msgType, PayloadConfigs, PayloadStartProcess } from "./types";
+// import manifest from '../dist/js/manifest.json';
 
 const messager = chrome.runtime.sendMessage;
 $(function() {

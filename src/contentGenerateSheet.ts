@@ -206,6 +206,9 @@ const generateSheet = (workbook: Excel.Workbook, mkt: Mercado, lstGroups: GrupoE
     rowSubTitle.getCell(6).value = 
         totalPremioEmitido > totalPremioEmitidoAnoPassado ? 1 : 0;
 
+    //set column sinestridade
+    rowSubTitle.getCell(12).value = mkt.totalSinistridade;
+
     let countClassification = 1;
     allLines
     .filter(line => !isEmptyLine(line))
