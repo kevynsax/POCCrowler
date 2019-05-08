@@ -106,7 +106,7 @@ const getNext = (msg, sendResponse) =>
             return;
         }
 
-        updateCounter();
+        updateCounter();  
 
         sendResponse(null);
         return;
@@ -199,7 +199,7 @@ const setupConfigs = callback => {
         { nome: "Environmental", idRamos: [313] },
         { nome: "Port", idRamos: [1417] },
 //        { nome: "Property", idRamos: [196, 141, 118] },
-//        { nome: "PRCB", idRamos: [748, 749] },
+        { nome: "PRCB", idRamos: [748, 749] },
         { nome: "Property RNO", idRamos: [196] },
         { nome: "Property Compr. Emp.", idRamos: [118] },
         { nome: "Property Total", idRamos: [196, 141, 118] },
@@ -209,7 +209,6 @@ const setupConfigs = callback => {
         { nome: "Condomínio", idRamos: [116] },
         { nome: "Miscellaneous", idRamos: [171] },
     ];
-
     const allIds = mkts.map(x => x.idRamos).reduce((all, item) => [...all, ...item], []);
 
     updateConfigs({

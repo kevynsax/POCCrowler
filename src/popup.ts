@@ -1,6 +1,6 @@
 import * as $ from 'jquery';
 import { Mensagem, msgType, PayloadConfigs, PayloadStartProcess } from "./types";
-// import manifest from '../dist/js/manifest.json';
+//import * as manifest from '../dist/manifest.json';
 
 const messager = chrome.runtime.sendMessage;
 $(function() {
@@ -8,7 +8,8 @@ $(function() {
   const data = new Date();
   $("#periodoFim").val(`${data.getFullYear()}${padLeft(data.getMonth(), 2, '0')}`);
   $("#periodoInicial").val(`${data.getFullYear()}01`);
-
+  //$("#version").html(`Version ${manifest.version}`);
+  
   $('#generate').click(()=>{
     const periodoFinal = getIntVal("periodoFim");
     const periodoInicial = getIntVal("periodoInicial");

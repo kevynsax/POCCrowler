@@ -190,8 +190,8 @@ const generateSheet = (workbook: Excel.Workbook, mkt: Mercado, lstGroups: GrupoE
     const calcTotal = prop => dataLines.reduce((a, b) => a + b[prop],0);
     const rowSubTitle = sheet.addRow(columns.map(item => item.subTitle || calcTotal(item.id)));
 
-    sheet.columns.forEach((col, o) => {
-        const cell = rowSubTitle.getCell(o + 1);
+    sheet.columns.forEach((col, o) => { 
+        const cell = rowSubTitle.getCell(o + 1);  
         cell.numFmt = hasDecimalPlaces(cell.value as number) ? decimalFormatting : intFormatting;
     })
     const allLines = [...dataLines, ...lineGroups];

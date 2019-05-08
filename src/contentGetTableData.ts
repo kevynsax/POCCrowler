@@ -13,6 +13,8 @@ chrome.runtime.sendMessage({
         return;
 
     const market = getMetadata();
+    if(market.nome === "cyber")
+    debugger;
     const tableData = getTable();
     market.totalSinistridade = totalSinistralidade;
     
@@ -33,6 +35,10 @@ const getMetadata = (): Mercado => ({
 
 const getTable = (): EstatisticaEmpresa[] => {
     var lines = [... $("#ctl00_ContentPlaceHolder1_gvSaida tbody tr")].map((x: any) => [...x.cells].map(x => x.innerText));
+    
+    if(!lines.length)
+        return [];
+        
     totalSinistralidade = parseFloat(replaceAll(lines[lines.length-1][16], /\,/, "."));
     return lines.slice(1, lines.length-2).map(x => ({
         idSusep: parse(x[0]),
