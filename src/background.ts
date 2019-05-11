@@ -125,7 +125,8 @@ const insertData = (msg: Mensagem, callBack: () => void) =>
 
         if(mkt.periodoInicial === meta.periodoInicial){
             mkt.dadosEmpresaAtual = payload.tableData;
-            mkt.buscouDadosEmprAtual = true; 
+            mkt.totalSinistridade = meta.totalSinistridade;
+            mkt.buscouDadosEmprAtual = true;
         }
         else{
             mkt.dadosEmpresaAnoPassado = payload.tableData;
@@ -137,7 +138,12 @@ const insertData = (msg: Mensagem, callBack: () => void) =>
     });
 
 const equalsMarket = (src: Mercado, to: Mercado): boolean => {
-    const createHash = (lst: number[]): string => lst.sort((a, b) => a - b).join(",");
+    const distinctFilter = (ramo, index, lstRamos) => 
+        lstRamos.indexOf(ramo) === index;
+
+    const createHash = (lst: number[]): string => 
+        lst.sort((a, b) => a - b).filter(distinctFilter).join(",");
+
     return createHash(src.idRamos) === createHash(to.idRamos);
 }
 
@@ -209,7 +215,10 @@ const setupConfigs = callback => {
         { nome: "Condomínio", idRamos: [116] },
         { nome: "Miscellaneous", idRamos: [171] },
     ];
-    const allIds = mkts.map(x => x.idRamos).reduce((all, item) => [...all, ...item], []);
+
+    const allIds = mkts
+                    .map(x => x.idRamos)
+                    .reduce((all, item) => [...all, ...item], []);
 
     updateConfigs({
         markets: [

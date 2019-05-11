@@ -112,9 +112,9 @@ const generateSheet = (workbook: Excel.Workbook, mkt: Mercado, lstGroups: GrupoE
     const columns = [
         { id: "class", name: "Title", subTitle: "Class.", width: 6.14 },
         { id: "empresa", name: firsLabel, subTitle: "Totais", isStyleRed: true, width: 53 },
-        { id: "premioEmitidoAtu", name: `Prêmio Emitido (${mkt.periodoFinal.toString().substr(0,4)})`, width: 23 },
+        { id: "premioEmitidoAtu", name: `Prêmio Emitido (${mkt.periodoInicial.toString().substr(0,4)})`, width: 23 },
         { id: "mktShare", name: `MKT Share` , subTitle: "100%", width: 10.71 },
-        { id: "premioEmitidoAnt", name: `Prêmio Emitido (${mkt.periodoInicial.toString().substr(0,4)})`, width: 23 },
+        { id: "premioEmitidoAnt", name: `Prêmio Emitido (${(mkt.periodoInicial - 100).toString().substr(0,4)})`, width: 23 },
         { id: "var", name: `Var.`, subTitle: " ", width: 4.43 },
         { id: "premioGanho", name: `Prêmio Ganho`, width: 14 },
         { id: "despesaResseguro", name: `Despesa c/ Resseguro`, width: 22.14 },

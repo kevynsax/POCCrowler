@@ -6,6 +6,11 @@ import { EstatisticaEmpresa, Mercado, Mensagem, msgType } from "./types";
 // jqry.src = "https://code.jquery.com/jquery-3.3.1.min.js";
 // document.getElementsByTagName('head')[0].appendChild(jqry);
 
+interface responseTable{
+    lines: EstatisticaEmpresa[],
+    totalSinistralidade: number
+}
+
 chrome.runtime.sendMessage({
     type: msgType.getCrowlerIsActive
 } as Mensagem, (response) =>{
@@ -13,19 +18,15 @@ chrome.runtime.sendMessage({
         return;
 
     const market = getMetadata();
-    if(market.nome === "cyber")
-    debugger;
     const tableData = getTable();
-    market.totalSinistridade = totalSinistralidade;
+    market.totalSinistridade = tableData.totalSinistralidade;
     
     const newMsg: Mensagem = {
         type: msgType.insertData, 
-        payload: {metadata: market, tableData}};
+        payload: {metadata: market, tableData: tableData.lines}};
     
     chrome.runtime.sendMessage(newMsg);
 })
-
-let totalSinistralidade = 0;
 
 const getMetadata = (): Mercado => ({
     idRamos: $("#ctl00_ContentPlaceHolder1_lblRamos")[0].innerText.split(", ").map(x => parse(x)),
@@ -33,14 +34,16 @@ const getMetadata = (): Mercado => ({
     periodoFinal: parse($("#ctl00_ContentPlaceHolder1_lblPeriodoAte")[0].innerText)
 } as Mercado)
 
-const getTable = (): EstatisticaEmpresa[] => {
+const getTable = (): responseTable => {
     var lines = [... $("#ctl00_ContentPlaceHolder1_gvSaida tbody tr")].map((x: any) => [...x.cells].map(x => x.innerText));
     
     if(!lines.length)
-        return [];
+        return {
+            lines: [],
+            totalSinistralidade: 0
+        };
         
-    totalSinistralidade = parseFloat(replaceAll(lines[lines.length-1][16], /\,/, "."));
-    return lines.slice(1, lines.length-2).map(x => ({
+    const allData = lines.slice(1, lines.length-2).map(x => ({
         idSusep: parse(x[0]),
         empresa: x[1],
         premioEmitido: parse(x[6]),
@@ -52,6 +55,11 @@ const getTable = (): EstatisticaEmpresa[] => {
         sinistralidade: parseFloat(replaceAll(x[16], /\,/, ".")),
         rvne: parse(x[17])
     }));
+
+    return {
+        lines: allData,
+        totalSinistralidade: parseFloat(replaceAll(lines[lines.length-1][16], /\,/, "."))
+    };
 }
 
 const parse = (num: string) => parseInt(replaceAll(num, /\./,""), 10);
