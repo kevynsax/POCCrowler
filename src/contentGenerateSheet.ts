@@ -108,7 +108,10 @@ const generateSheet = (workbook: Excel.Workbook, mkt: Mercado, lstGroups: GrupoE
     });
     const labelPeriodoInicial = mkt.periodoFinal.toString().substr(0,4);
     const labelPeriodoFinal = mkt.periodoFinal.toString().substr(4,2);
-    const firsLabel = `YTD ${labelPeriodoInicial}/${labelPeriodoFinal}  - ${mkt.nome} (${mkt.idRamos.join(', ')})`;
+    const distinctFilter = (ramo, index, lstRamos) => 
+        lstRamos.indexOf(ramo) === index;
+    const firsLabel = `YTD ${labelPeriodoInicial}/${labelPeriodoFinal}  - 
+        ${mkt.nome} (${mkt.idRamos.filter(distinctFilter).join(', ')})`;
     const columns = [
         { id: "class", name: "Title", subTitle: "Class.", width: 6.14 },
         { id: "empresa", name: firsLabel, subTitle: "Totais", isStyleRed: true, width: 53 },
